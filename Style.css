@@ -1,0 +1,13 @@
+img, video {
+	max-width: 100%;
+}
+
+#DataView {
+	white-space: break-spaces;
+}
+
+.PostView {
+	border: 4px solid purple;
+	margin: 12px;
+}
+

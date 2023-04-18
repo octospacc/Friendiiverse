@@ -3,12 +3,7 @@
 	<head>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-		<title></title>
-		<style>
-img, video { max-width: 100%; }
-#DataView { white-space: break-spaces; }
-.PostView { border: 4px solid purple; margin: 12px; }
-		</style>
+		<link rel="stylesheet" href="./Style.css"/>
 		<script>
 // Credentials hardcoding for now
 var MastodonUrl = 'https://mastodon.uno';
@@ -21,116 +16,25 @@ var UseFakeApi = true;
 		</script>
 	</head>
 	<body>
-		<div id=CoverView>
+		<div id="CoverView">
 			LOGO
 			Loading...
 		</div>
-		<div id=NoscriptView>
+		<div id="NoscriptView">
 			No Script!
 		</div>
-		<div id=PlazasView></div>
-		<div id=TimelineView></div>
-		<xmp id=DataView></xmp>
-		<script>
-NoscriptView.remove();
-
-var FakeApi = {};
-FakeApi.F = {};
-FakeApi.My = {};
-
-function LogDebug(Data, Status) {
-	if (Debug) {
-		for (var i=0; i<Data.length; i++) {
-			try {
-				Data[i] = JSON.parse(Data[i]);
-			} catch(_){};
-		};
-		console[{l: "log", e: "error"}[Status]](Data);
-	};
-};
-
-function ApiCall(Data) {
-	// Data = {Target: "Friendica", Method: "...", Data: {}, Call: (), CallFine: (), CallFail: ()}
-	var Req = new XMLHttpRequest();
-	Req.onreadystatechange = function(){
-		if (this.readyState == 4) {
-			var Status = String(this.status);
-			if (Data.Call) Data.Call(this);
-			if (Status.startsWith(4) || Status.startsWith(5)) {
-				if (Data.CallFail) Data.CallFail(this);
-				LogDebug([Status, this.responseText], 'e');
-			} else {
-				if (Data.CallFine) Data.CallFine(this);
-				LogDebug([Status, this.responseText], 'l');
+		<div id="PlazasView"></div>
+		<div id="TimelineView"></div>
+		<xmp id="DataView"></xmp>
+		<script src="./Translations.js"></script>
+		<script src="./Main.js"></script>
+		<script>(function(){
+			if (Debug) {
+				var El = document.createElement('script');
+				El.src="https://cdn.jsdelivr.net/npm/eruda";
+				document.body.appendChild(El);
+				El.onload = function(){ eruda.init(); };
 			};
-		};
-	};
-	if (Data.Target == 'Mastodon') {
-		Req.open('GET', `${MastodonUrl}/api/v1/${Data.Method}`, true);
-	};
-	if (Data.Target == 'Friendica') {
-		Req.open('GET', `${FriendicaUrl}/api/${Data.Method}.json`, true);
-		Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
-	};
-	Req.send();
-};
-
-function MastodonParse(Data, Type) {
-	{
-		Status: function(Data){
-			
-		},
-	}[Type](Data);
-};
-
-/*
-function DisplayMastodonTimeline(Timeline) {
-	ApiCall({Target: "Mastodon", Method: Timeline, CallFine: function(Res){
-		DataView.innerHTML = Res.responseText;
-		JSON.parse(DataView.innerHTML).forEach(function(Item){
-			TimelineView.innerHTML += `<div class=PostView>
-				<a href="${Item.external_url}">${Item.created_at}</a>
-				${Item.friendica_author.url}
-				${Item.friendica_html}
-			</div>`;
-		});
-	}});
-};
-*/
-
-function DisplayFriendicaTimeline(Timeline) {
-	ApiCall({Target: "Friendica", Method: Timeline, CallFine: function(Res){
-		DataView.innerHTML = Res.responseText;
-		JSON.parse(DataView.innerHTML).forEach(function(Item){
-			var Title = Item.friendica_title ? `<h2>${Item.friendica_title}</h2>` : '';
-			TimelineView.innerHTML += `<div class=PostView>
-				<a href="${Item.external_url}">${Item.created_at}</a>
-				${Item.friendica_author.url}
-				${Title}
-				${Item.friendica_html}
-			</div>`;
-		});
-	}});
-};
-
-PlazasView.innerHTML = `
-<div>
-	<h3>Featured</h3>
-	<ul>
-		<li onclick="DisplayFriendicaTimeline('statuses/networkpublic_timeline');">Federation</li>
-		<li onclick="DisplayFriendicaTimeline('statuses/public_timeline');">${FriendicaUrl}</li>
-		<li onclick="DisplayMastodonTimeline('timelines/public');">${MastodonUrl}</li>
-	</ul>
-</div>
-<div>
-	<h3>Categories</h3>
-	<ul>
-		<li>Testing</li>
-		<li>#fediverse</li>
-	</ul>
-</div>
-`;
-		</script>
-		<script src="https://cdn.jsdelivr.net/npm/eruda" onload="eruda.init();" defer async></script>
+		})();</script>
 	</body>
 </html>

@@ -1,0 +1,33 @@
+function ApiCall(f) {
+	var Req = new XMLHttpRequest();
+	Req.onloadend = function(){ f(this) };
+	Req.open('GET', `https://mastodon.social/api/v1/timelines/public`, true);
+	Req.send();
+};
+
+function Retry(Text, f) {
+	console.log(f)
+	if (Text) {
+		return Text;
+	} else {
+		setTimeout(f, 50, Text, f);
+	};
+};
+
+function PrintRes(Res) {
+	var Text = Res.responseText;
+	setTimeout(Retry, 50, Text, Retry);
+	return Res.responseText;
+};
+
+/*
+function PrintRes(Res) {
+	console.log(Res.responseText);
+	return Res.responseText;
+};
+*/
+
+function FetchContent() {
+	return ApiCall(PrintRes);
+};
+
