@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title></title>
+		<style>
+img, video { max-width: 100%; }
+#Target { white-space: break-spaces; }
+.Post { border: 4px solid purple; margin: 12px; }
+		</style>
+	</head>
+	<body>
+		<div id=Media></div>
+		<xmp id=Target></xmp>
+		<script>
+var ApiBase = 'https://poliverso.org/api';
+var Req = new XMLHttpRequest();
+Req.onreadystatechange = function(){
+	if (this.readyState == 4 && this.status != 404) {
+		Target.innerHTML = this.responseText;
+		console.log(JSON.parse(Target.innerHTML));
+		JSON.parse(Target.innerHTML).forEach(function(Item){
+			var Title = Item.friendica_title ? `<h2>${Item.friendica_title}</h2>` : '';
+			Media.innerHTML += `<div class=Post>
+				<a href="${Item.external_url}">${Item.created_at}</a>
+				${Item.friendica_author.url}
+				${Title}
+				${Item.friendica_html}
+			</div>`;
+		});
+	};
+};
+Req.open('GET', ApiBase + '/statuses/public_timeline.json', true);
+//Req.open('GET', 'https://poliverso.org/api/search?q=octt', true);
+Req.setRequestHeader('Authorization', `Basic ${btoa('redacted:redacted')}`);
+Req.send();
+		</script>
+	</body>
+</html>
