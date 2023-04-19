@@ -2,12 +2,13 @@
 import os
 from pathlib import Path
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.makedirs('./Dist', exist_ok=True)
 
 with open('./Friendiiverse.html', 'r') as Base:
 	Base = Base.read()
 
-def FragReplace(Find, Replace, Pattern='*.*', Folder='./'):
+def FragReplace(Find, Replace, Pattern='*.*', Folder='./Source/'):
 	global Base
 	for File in Path('./').rglob(Pattern):
 		with open(File, 'r') as Frag:

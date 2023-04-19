@@ -1,36 +1,34 @@
 var CurrTasks = {};
 
-var CurrentTimeline = [];
-var CurrentTimelineExp = 0;
-
-function LogDebug(Data, Status) {
-	if (Debug) {
-		for (var i=0; i<Data.length; i++) {
-			try {
-				Data[i] = JSON.parse(Data[i]);
-			} catch(_){};
-		};
-		console[{l: "log", e: "error"}[Status]](Data);
+function DoAsync(First, Then, Data) {
+	var Job = RndId();
+	CurrTasks[Job] = {
+		Remains: 0,
+		Return(Data) {
+			this.Remains -= 1;
+			this.Result = Data;
+		},
 	};
-};
-
-function WaitTasks(First, Then, Data) {
-	var Run = RndId();
-	CurrTasks[Run] = {Remains: 0};
+	// Call all First functs
 	ForceList(First).forEach(function(Fun, Data){
 		var Task = RndId();
-		var Proc = [Run, Task];
-		CurrTasks[Run].Remains += 1;
-		Data ? Fun(Proc, Data) : Fun(Proc);
+		var Proc = [Job, Task];
+		CurrTasks[Job][Task] = {};
+		CurrTasks[Job].Remains += 1;
+		//Fun(Proc, Data);
+		Data ? Fun(Data, Proc) : Fun(Proc);
 	});
-	CurrTasks[Run].Interval = setInterval(function(Run, Then){
-		if (CurrTasks[Run].Remains === 0) {
-			clearInterval(CurrTasks[Run].Interval);
+	// Continuosly check when First functs completed
+	CurrTasks[Job].Interval = setInterval(function(Job, Then){
+		if (CurrTasks[Job].Remains <= 0) {
+			clearInterval(CurrTasks[Job].Interval);
+			// Call all Then functs
 			ForceList(Then).forEach(function(Fun){
-				Fun(CurrTasks[Run].Result);
+				Fun(CurrTasks[Job].Result);
 			});
 		};
-	}, 50, Run, Then);
+	}, 50, Job, Then);
+	return Job;
 };
 
 function HttpCodeGood(Code) {
@@ -74,32 +72,6 @@ function ApiCall(Data, Proc) {
 	Req.send();
 };
 
-/*
-function MastodonParse(Data, Type) {
-	var Trans = {
-		Status(Data) {
-			return JsonTranslate(Data, TransSchemas.Mastodon.Status);
-		},
-	}
-	return Trans[Type](Data);
-};
-*/
-
-/*
-function DisplayMastodonTimeline(Timeline) {
-	ApiCall({Target: "Mastodon", Method: Timeline, CallFine: function(Res){
-		DataView.innerHTML = Res.responseText;
-		JSON.parse(DataView.innerHTML).forEach(function(Item){
-			TimelineView.innerHTML += `<div class=PostView>
-				<a href="${Item.external_url}">${Item.created_at}</a>
-				${Item.friendica_author.url}
-				${Item.friendica_html}
-			</div>`;
-		});
-	}});
-};
-*/
-
 function DisplayFriendicaTimeline(Timeline) {
 	ApiCall({Target: "Friendica", Method: Timeline, CallFine: function(Res){
 		DataView.innerHTML = Res.responseText;
@@ -116,27 +88,18 @@ function DisplayFriendicaTimeline(Timeline) {
 };
 
 function FetchMastodon(Proc) {
-	return ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: function(Res){
-		//console.log(JSON.parse(Res.responseText)[0])
-		var New = [ TransParsers.Mastodon.Status( JSON.parse(Res.responseText)[0] ) ];
-		console.log(New)
-		//return [
-		//	TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])
-		//];
-		//CurrentTimeline = CurrentTimeline.concat([TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])]);
-		//CurrentTimelineExp -= 1;
-		CurrTasks[Res.Proc[0]].Remains -= 1;
-		// TODO: store data in global object
-		CurrTasks[Res.Proc[0]].Result = New;
+	ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: function(Res){
+		var Notes = [ TransParsers.Mastodon.Status( JSON.parse(Res.responseText)[0] ) ];
+		LogDebug(Notes, 'l');
+		CurrTasks[Proc[0]].Return(Notes);
 	}}, Proc);
 };
 
 function FillTimeline(Notes) {
-	console.log('notes', Notes)
 	Notes.forEach(function(Note){
-		TimelineView.innerHTML += `<div class=PostView>
+		TimelineView.innerHTML += `<div class="NoteView">
 			<a href="${Note.Url}">${Note.Time}</a>
-			${Note.Author}
+			${Note.Author.Url}
 			${Note.Content}
 		</div>`;
 	});
@@ -148,7 +111,10 @@ PlazasView.innerHTML = `
 	<ul>
 		<li onclick="DisplayFriendicaTimeline('statuses/networkpublic_timeline');">Federation</li>
 		<li onclick="DisplayFriendicaTimeline('statuses/public_timeline');">${FriendicaUrl}</li>
-		<li onclick="WaitTasks(FetchMastodon, FillTimeline);">${MastodonUrl}</li>
+		<li onclick="DoAsync(FetchMastodon, FillTimeline);">
+			<img src=""/>
+			${MastodonUrl}
+		</li>
 	</ul>
 </div>
 <div>

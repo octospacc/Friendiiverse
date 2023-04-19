@@ -6,7 +6,7 @@
 		<link rel="stylesheet" href="./Style.css"/>
 		<script>
 // Credentials hardcoding for now
-var MastodonUrl = 'https://mastodon.uno';
+var MastodonUrl = 'https://mastodon.social';
 var FriendicaUrl = 'https://poliverso.org';
 var FriendicaCredentials = 'redacted:redacted';
 
@@ -34,10 +34,11 @@ var UseFakeApi = true;
 		<script>NoscriptView.remove();</script>
 		<script src="./Utils.js"></script>
 		<script src="./Strings.js"></script>
-		<script src="./Translations.js"></script>
+		<script src="./ApiTransform.js"></script>
+		<script src="./FakeApi.js"></script>
 		<script src="./Main.js"></script>
 		<script>(function(){
-			if (Debug) {
+			if (Debug && new URLSearchParams(window.location.hash).get('#Eruda')) {
 				var El = document.createElement('script');
 				El.src="https://cdn.jsdelivr.net/npm/eruda";
 				document.body.appendChild(El);
