@@ -21,7 +21,19 @@ function LogDebug(Data, Status) {
 };
 
 // Transform JSON tree into a new using a template schema
-function JsonTransform(TreeOld, SchemaCurr, SchemaRoot) {
+// DEVNOTE: Unsafe, should check for colliding "__" keys from input tree and act accordingly
+function JsonTransformA(TreesOld, SchemaCurr, SchemaRoot) {
+	if (Array.isArray(TreesOld)) {
+		var ListNew = [];
+		ForceList(TreesOld).forEach(function(TreeOld){
+			ListNew.push(JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot));
+		});
+		return ListNew;
+	} else {
+		return JsonTransformCycleA(TreesOld, SchemaCurr, SchemaRoot);
+	};
+};
+function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 	var TreeNew = {};
 	Object.keys(TreeOld).forEach(function(KeyOld){
 		var Content = TreeOld[KeyOld];
@@ -29,24 +41,38 @@ function JsonTransform(TreeOld, SchemaCurr, SchemaRoot) {
 		if (typeof(Content) == 'object' && Content !== null) {
 			if (Array.isArray(Content)) {
 			// Lists
-				var ListNew = [];
+			/*	var ListNew = [];
 				Content.forEach(function(Value){
 					ListNew.push(JsonTransform(Value, KeyNew));
 				});
-				TreeNew[KeyNew] = ListNew;
+				TreeNew[KeyNew] = ListNew;*/
 			} else {
 			// Dicts
-				if (!KeyNew.__) {
-					KeyNew.__ = KeyOld;
+				// Strange bug, in this context we can't assign new value to child of the object, we use a variable
+				NameKeyNew = KeyNew.__;
+				if (!NameKeyNew) {
+					NameKeyNew = KeyOld;
 				};
-				TreeNew[KeyNew.__] = JsonTransform(Content, SchemaRoot[KeyNew.__], SchemaRoot);
-				TreeNew[SchemaRoot[KeyNew.__].__] = TreeNew[KeyNew.__];
-				delete TreeNew[KeyNew.__];
+				TreeNew[NameKeyNew] = JsonTransformA(Content, SchemaRoot[NameKeyNew], SchemaRoot);
+				if (NameKeyNew !== KeyOld) {
+					TreeNew[SchemaRoot[NameKeyNew].__] = TreeNew[NameKeyNew];
+					delete TreeNew[NameKeyNew];
+				};
 			};
 		} else {
 		// Values
 			TreeNew[KeyNew] = Content;
 		};
+	});
+	return TreeNew;
+};
+function JsonTransformB(TreesOld, Schema, Node, Source) {
+	
+};
+function JsonTransformCycleB(TreeOld, Schema, Node, Source) {
+	var TreeNew = {};
+	Object.keys(Node).forEach(function(KeyOld){
+		console.log(KeyOld)
 	});
 	return TreeNew;
 };

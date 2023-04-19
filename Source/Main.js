@@ -49,22 +49,22 @@ function ApiCall(Data, Proc) {
 		var Status = String(this.status);
 		if (Data.Call) {
 			Data.Call(this);
-		}
+		};
 		if (HttpCodeGood(this.status)) {
+			LogDebug([this.status, this.responseText], 'l');
 			if (Data.CallFine) {
 				Data.CallFine(this);
 			};
-			LogDebug([this.status, this.responseText], 'l');
 		} else {
+			LogDebug([this.status, this.responseText], 'e');
 			if (Data.CallFail) {
 				Data.CallFail(this);
 			};
-			LogDebug([this.status, this.responseText], 'e');
 		};
 	};
 	if (Data.Target == 'Mastodon') {
 		Req.open('GET', `${MastodonUrl}/api/v1/${Data.Method}`, true);
-	};
+	} else
 	if (Data.Target == 'Friendica') {
 		Req.open('GET', `${FriendicaUrl}/api/${Data.Method}.json`, true);
 		Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
@@ -89,7 +89,7 @@ function DisplayFriendicaTimeline(Timeline) {
 
 function FetchMastodon(Proc) {
 	ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: function(Res){
-		var Notes = [ TransParsers.Mastodon.Status( JSON.parse(Res.responseText)[0] ) ];
+		var Notes = TransParsers.Mastodon.Status(JSON.parse(Res.responseText));
 		LogDebug(Notes, 'l');
 		CurrTasks[Proc[0]].Return(Notes);
 	}}, Proc);
@@ -97,9 +97,12 @@ function FetchMastodon(Proc) {
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
-		TimelineView.innerHTML += `<div class="NoteView">
+		TimelineView.innerHTML += `<div class="Note">
+			<a href="${Note.Author.Url}">
+				<img class="Author Picture" src="${Note.Author.Picture}"/>
+				${Note.Author.Url}
+			</a>
 			<a href="${Note.Url}">${Note.Time}</a>
-			${Note.Author.Url}
 			${Note.Content}
 		</div>`;
 	});

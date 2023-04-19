@@ -20,7 +20,11 @@ footer {
 	white-space: break-spaces;
 }
 
-.NoteView {
+.Note {
 	border: 4px solid purple;
 	margin: 12px;
+}
+
+.Note > .Author.Picture {
+	width: 64px;
 }
