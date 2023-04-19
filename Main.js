@@ -1,11 +1,7 @@
-NoscriptView.remove();
+var CurrTasks = {};
 
 var CurrentTimeline = [];
 var CurrentTimelineExp = 0;
-
-var FakeApi = {};
-FakeApi.F = {};
-FakeApi.My = {};
 
 function LogDebug(Data, Status) {
 	if (Debug) {
@@ -18,29 +14,55 @@ function LogDebug(Data, Status) {
 	};
 };
 
-function ApiCall(Data) {
+function WaitTasks(First, Then, Data) {
+	var Run = RndId();
+	CurrTasks[Run] = {Remains: 0};
+	ForceList(First).forEach(function(Fun, Data){
+		var Task = RndId();
+		var Proc = [Run, Task];
+		CurrTasks[Run].Remains += 1;
+		Data ? Fun(Proc, Data) : Fun(Proc);
+	});
+	CurrTasks[Run].Interval = setInterval(function(Run, Then){
+		if (CurrTasks[Run].Remains === 0) {
+			clearInterval(CurrTasks[Run].Interval);
+			ForceList(Then).forEach(function(Fun){
+				Fun(CurrTasks[Run].Result);
+			});
+		};
+	}, 50, Run, Then);
+};
+
+function HttpCodeGood(Code) {
+	var Unit = String(Code)[0];
+	if (['1', '2', '3'].includes(Unit)) {
+		return true;
+	} else
+	if (['4', '5'].includes(Unit)) {
+		return false;
+	};
+};
+
+function ApiCall(Data, Proc) {
 	// Data = {Target: "Friendica", Method: "...", Data: {}, Call: (), CallFine: (), CallFail: ()}
 	var Req = new XMLHttpRequest();
-	//Req.onreadystatechange = function(){
+	Req.Proc = Proc;
 	Req.onloadend = function(){
-		//if (this.readyState == 4) {
-			var Status = String(this.status);
-			if (Data.Call) {
-				return Data.Call(this);
-			}
-			if (['1', '2', '3'].includes(Status[0])) {
-				if (Data.CallFine) {
-					return Data.CallFine(this);
-				};
-				LogDebug([Status, this.responseText], 'l');
-			} else
-			if (['4', '5'].includes(Status[0])) {
-				if (Data.CallFail) {
-					return Data.CallFail(this);
-				};
-				LogDebug([Status, this.responseText], 'e');
+		var Status = String(this.status);
+		if (Data.Call) {
+			Data.Call(this);
+		}
+		if (HttpCodeGood(this.status)) {
+			if (Data.CallFine) {
+				Data.CallFine(this);
 			};
-		//};
+			LogDebug([this.status, this.responseText], 'l');
+		} else {
+			if (Data.CallFail) {
+				Data.CallFail(this);
+			};
+			LogDebug([this.status, this.responseText], 'e');
+		};
 	};
 	if (Data.Target == 'Mastodon') {
 		Req.open('GET', `${MastodonUrl}/api/v1/${Data.Method}`, true);
@@ -93,16 +115,20 @@ function DisplayFriendicaTimeline(Timeline) {
 	}});
 };
 
-function FetchMastodon() {
+function FetchMastodon(Proc) {
 	return ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: function(Res){
 		//console.log(JSON.parse(Res.responseText)[0])
-		console.log([TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])])
+		var New = [ TransParsers.Mastodon.Status( JSON.parse(Res.responseText)[0] ) ];
+		console.log(New)
 		//return [
 		//	TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])
 		//];
-		CurrentTimeline = CurrentTimeline.concat([TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])]);
-		CurrentTimelineExp -= 1;
-	}});
+		//CurrentTimeline = CurrentTimeline.concat([TransParsers.Mastodon.Status(JSON.parse(Res.responseText)[0])]);
+		//CurrentTimelineExp -= 1;
+		CurrTasks[Res.Proc[0]].Remains -= 1;
+		// TODO: store data in global object
+		CurrTasks[Res.Proc[0]].Result = New;
+	}}, Proc);
 };
 
 function FillTimeline(Notes) {
@@ -122,7 +148,7 @@ PlazasView.innerHTML = `
 	<ul>
 		<li onclick="DisplayFriendicaTimeline('statuses/networkpublic_timeline');">Federation</li>
 		<li onclick="DisplayFriendicaTimeline('statuses/public_timeline');">${FriendicaUrl}</li>
-		<li onclick="var CurrentTimelineExp = 1; FetchMastodon(); /*FillTimeline();*//*DisplayMastodonTimeline('timelines/public');*/">${MastodonUrl}</li>
+		<li onclick="WaitTasks(FetchMastodon, FillTimeline);">${MastodonUrl}</li>
 	</ul>
 </div>
 <div>
@@ -133,4 +159,3 @@ PlazasView.innerHTML = `
 	</ul>
 </div>
 `;
-

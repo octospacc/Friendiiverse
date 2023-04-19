@@ -6,7 +6,7 @@ var TransSchemas = {
 		},
 		Status: {
 			"__": "Note",
-			"account": {"__": "Account"},
+			//"account": {"__": "Account"},
 			"content": "Content",
 			"created_at": "Time",
 			"url": "Url",
@@ -25,11 +25,11 @@ var TransParsers = {
 	},
 };
 
-function JsonTranslate(Old, Schema) {
-	var New = {};
-	Object.keys(Old).forEach(function(OldKey){
-		var Content = Old[OldKey];
-		var NewKey = (OldKey in Schema ? Schema[OldKey]: OldKey);
+function JsonTranslate(TreeOld, Schema) {
+	var TreeNew = {};
+	Object.keys(TreeOld).forEach(function(KeyOld){
+		var Content = TreeOld[KeyOld];
+		var KeyNew = ((typeof(Schema) == 'object' && KeyOld in Schema) ? Schema[KeyOld] : KeyOld);
 		if (typeof(Content) == 'object' && Content !== null) {
 			if (Array.isArray(Content)) {
 			// Lists
@@ -37,14 +37,15 @@ function JsonTranslate(Old, Schema) {
 				//Content.forEach(function());
 			} else {
 			// Dicts
-				NewKey.__ ||= OldKey;
-				New[NewKey.__] = JsonTranslate(Content, NewKey);
+				if (!KeyNew.__) {
+					KeyNew.__ = KeyOld;
+				};
+				TreeNew[KeyNew.__] = JsonTranslate(Content, KeyNew);
 			};
 		} else {
 		// Values
-			New[NewKey] = Content;
+			TreeNew[KeyNew] = Content;
 		};
 	});
-	return New;
+	return TreeNew;
 };
-
