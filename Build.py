@@ -5,20 +5,25 @@ from pathlib import Path
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.makedirs('./Dist', exist_ok=True)
 
-with open('./Friendiiverse.html', 'r') as Base:
+os.chdir('./Source')
+
+with open(f'./Friendiiverse.html', 'r') as Base:
 	Base = Base.read()
 
-def FragReplace(Find, Replace, Pattern='*.*', Folder='./Source/'):
+def FragReplace(Find, Replace, Pattern='*.*'):
 	global Base
 	for File in Path('./').rglob(Pattern):
+		File = str(File)
 		with open(File, 'r') as Frag:
-			Frag = Replace[0] + Frag.read() + Replace[1]
+			Frag = Replace.format(File=File, Frag=Frag.read())
 			for Prefix in ('', './'):
-				Base = Base.replace(Find[0] + Prefix + str(File) + Find[1], Frag)
+				File = Prefix + File
+				Base = Base.replace(Find.format(File=File), Frag)
 
-FragReplace(('<link rel="stylesheet" href="', '"/>'), ('<style>', '</style>'),   '*.css')
-FragReplace(('<script src="', '"></script>'),         ('<script>', '</script>'), '*.js')
+FragReplace('<link rel="stylesheet" href="{File}"/>', '<style data-source="{File}">{Frag}</style>',   '*.css')
+FragReplace('<script src="{File}"></script>',         '<script data-source="{File}">{Frag}</script>', '*.js')
+
+os.chdir('..')
 
 with open('./Dist/Friendiiverse.html', 'w') as Build:
 	Build.write(Base)
-

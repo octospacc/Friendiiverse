@@ -19,15 +19,29 @@ var TransSchemas = {
 	},
 };
 var TransSchemas_ = {
-	"Note": {
-		"Author": {
-			"Mastodon": "Status.account"
+	"Author": {
+		"Banner": {
+			"Mastodon": "header"
 		},
-		"Content": {
-			"Mastodon": "Status.content"
+		"Picture": {
+			"Mastodon": "avatar"
 		},
 		"Url": {
-			"Mastodon": "Status.url"
+			"Mastodon": "url"
+		},
+	},
+	"Note": {
+		"Author": {
+			"Mastodon": "account"
+		},
+		"Content": {
+			"Mastodon": "content"
+		},
+		"Time": {
+			"Mastodon": "created_at"
+		},
+		"Url": {
+			"Mastodon": "url"
 		},
 	},
 };
@@ -42,7 +56,7 @@ var TransParsers = {
 		},
 		Status(Data) {
 			return JsonTransformA(Data, TransSchemas.Mastodon.Status, TransSchemas.Mastodon);
-			// return JsonTransformB({Status: Data}, TransSchemas_, TransSchemas_.Note, 'Mastodon');
+			//return JsonTransformB(Data, TransSchemas_, TransSchemas_.Note, 'Mastodon');
 		},
 	},
 };

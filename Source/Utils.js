@@ -66,13 +66,35 @@ function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 	});
 	return TreeNew;
 };
-function JsonTransformB(TreesOld, Schema, Node, Source) {
-	
+function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
+	if (Array.isArray(TreesOld)) {
+		var ListNew = [];
+		ForceList(TreesOld).forEach(function(TreeOld){
+			ListNew.push(JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld));
+		});
+		return ListNew;
+	} else {
+		return JsonTransformCycleB(TreesOld, SchemaNew, NodeNew, TypeOld);
+	};
 };
-function JsonTransformCycleB(TreeOld, Schema, Node, Source) {
-	var TreeNew = {};
-	Object.keys(Node).forEach(function(KeyOld){
-		console.log(KeyOld)
+function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
+	var TreeNew = NodeNew;
+	Object.keys(NodeNew).forEach(function(KeyNew){
+		if (TypeOld in NodeNew[KeyNew]) {
+			var KeyOld = NodeNew[KeyNew][TypeOld];
+			var ObjOld = TreeOld[KeyOld];
+			if (typeof(KeyOld) == 'object') {
+			// Deep nested children in TreeOld
+				
+			} else {
+			// Direct children in TreeOld
+				if (typeof(ObjOld) == 'object') {
+					TreeNew[KeyNew] = JsonTransformB(ObjOld, SchemaNew, SchemaNew[KeyNew], TypeOld);
+				} else {
+					TreeNew[KeyNew] = ObjOld;
+				};
+			};
+		};
 	});
 	return TreeNew;
 };

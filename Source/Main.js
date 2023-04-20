@@ -46,17 +46,22 @@ function ApiCall(Data, Proc) {
 	var Req = new XMLHttpRequest();
 	Req.Proc = Proc;
 	Req.onloadend = function(){
-		var Status = String(this.status);
+		try {
+			this.responseJson = JSON.parse(this.responseText);
+			this.responseLog = this.responseJson;
+		} catch(Ex) {
+			this.responseLog = this.responseText;
+		};
 		if (Data.Call) {
 			Data.Call(this);
 		};
 		if (HttpCodeGood(this.status)) {
-			LogDebug([this.status, this.responseText], 'l');
+			LogDebug([this.status, this.responseLog], 'l');
 			if (Data.CallFine) {
 				Data.CallFine(this);
 			};
 		} else {
-			LogDebug([this.status, this.responseText], 'e');
+			LogDebug([this.status, this.responseLog], 'e');
 			if (Data.CallFail) {
 				Data.CallFail(this);
 			};
@@ -87,23 +92,29 @@ function DisplayFriendicaTimeline(Timeline) {
 	}});
 };
 
+function ResFetchMastodon(Res) {
+	var Notes = TransParsers.Mastodon.Status(Res.responseJson);
+	LogDebug(Notes, 'l');
+	CurrTasks[Res.Proc[0]].Return(Notes);
+};
+
 function FetchMastodon(Proc) {
-	ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: function(Res){
-		var Notes = TransParsers.Mastodon.Status(JSON.parse(Res.responseText));
-		LogDebug(Notes, 'l');
-		CurrTasks[Proc[0]].Return(Notes);
-	}}, Proc);
+	if (UseFakeApi) {
+		ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
+	} else {
+		ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: ResFetchMastodon}, Proc);
+	};
 };
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
-		TimelineView.innerHTML += `<div class="Note">
+		TimelineView.innerHTML += `<div class="View Note">
 			<a href="${Note.Author.Url}">
 				<img class="Author Picture" src="${Note.Author.Picture}"/>
 				${Note.Author.Url}
 			</a>
-			<a href="${Note.Url}">${Note.Time}</a>
 			${Note.Content}
+			<a href="${Note.Url}">${Note.Time}</a>
 		</div>`;
 	});
 };

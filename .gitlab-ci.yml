@@ -17,6 +17,7 @@ pages:
   stage: deploy
   script: |
     python3 ./Build.py
+    mv ./Dist ./public
   artifacts:
     paths:
     - public
