@@ -24,6 +24,7 @@ FakeApi.Friendiiverse.Featured.Categories.push({
 FakeApi.Mastodon.Account = {
 	avatar: "https://picsum.photos/seed/Tester.Icon/64",
 	display_name: "The Tester",
+	header: "https://picsum.photos/seed/Tester.Banner/320/180",
 	url: "https://mastodon.example.com/@Tester",
 };
 

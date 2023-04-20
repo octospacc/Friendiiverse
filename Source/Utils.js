@@ -20,8 +20,19 @@ function LogDebug(Data, Status) {
 	};
 };
 
+function IsObj(Item) {
+	return typeof(Item) == 'object';
+};
+
 function CopyObj(Obj) {
 	return JSON.parse(JSON.stringify(Obj));
+};
+
+function B64Obj(Obj) {
+	return btoa(JSON.stringify(Obj));
+};
+function UnB64Obj(Obj) {
+	return JSON.parse(atob(Obj));
 };
 
 // Transform JSON tree into a new using a template schema
@@ -41,8 +52,8 @@ function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 	var TreeNew = {};
 	Object.keys(TreeOld).forEach(function(KeyOld){
 		var Content = TreeOld[KeyOld];
-		var KeyNew = ((typeof(SchemaCurr) == 'object' && KeyOld in SchemaCurr) ? SchemaCurr[KeyOld] : KeyOld);
-		if (typeof(Content) == 'object' && Content !== null) {
+		var KeyNew = ((IsObj(SchemaCurr) && KeyOld in SchemaCurr) ? SchemaCurr[KeyOld] : KeyOld);
+		if (IsObj(Content) && Content !== null) {
 			if (Array.isArray(Content)) {
 			// Lists
 			/*	var ListNew = [];
@@ -87,12 +98,12 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 		if (TypeOld in TreeNew[KeyNew]) {
 			var KeyOld = TreeNew[KeyNew][TypeOld];
 			var ObjOld = TreeOld[KeyOld];
-			if (typeof(KeyOld) == 'object') {
+			if (IsObj(KeyOld)) {
 			// Deep nested children in TreeOld
 				
 			} else {
 			// Direct children in TreeOld
-				if (typeof(ObjOld) == 'object') {
+				if (IsObj(ObjOld)) {
 					TreeNew[KeyNew] = JsonTransformB(ObjOld, SchemaNew, SchemaNew[KeyNew], TypeOld);
 				} else {
 					TreeNew[KeyNew] = ObjOld;

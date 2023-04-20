@@ -2,11 +2,11 @@ img, video {
 	max-width: 100%;
 }
 
-main {
+#Root {
 	margin-bottom: 2em;
 }
 
-footer {
+#Bottom {
 	display: block;
 	width: 100%;
 	position: fixed;
@@ -27,4 +27,8 @@ footer {
 
 .View.Note .Author.Icon {
 	width: 64px;
+}
+
+.Gallery > div {
+	display: inline-block;
 }

@@ -16,23 +16,26 @@ var UseFakeApi = true;
 		</script>
 	</head>
 	<body>
-	<main>
-		<div id="CoverView">
-			LOGO
-			Loading...
+		<div id="Root">
+			<div id="CoverView">
+				LOGO
+				Loading...
+			</div>
+			<div id="NoscriptView">
+				No Script!
+			</div>
+			<!--
+			<div id="PlazasView"></div>
+			<textarea id="Input"></textarea>
+			<button id="Post">Post</button>
+			<div id="ChannelView"></div>
+			<div id="TimelineView"></div>
+			<xmp id="DataView"></xmp>
+			-->
 		</div>
-		<div id="NoscriptView">
-			No Script!
+		<div id="Bottom">
+			<a href="https://gitlab.com/octtspacc/Friendiiverse">Source Code</a>
 		</div>
-		<div id="PlazasView"></div>
-		<textarea id="Input"></textarea>
-		<button id="Post">Post</button>
-		<div id="TimelineView"></div>
-		<xmp id="DataView"></xmp>
-	</main>
-	<footer>
-		<a href="https://gitlab.com/octtspacc/Friendiiverse">Source Code</a>
-	</footer>
 		<script>NoscriptView.remove();</script>
 		<script src="./Utils.js"></script>
 		<script src="./Strings.js"></script>

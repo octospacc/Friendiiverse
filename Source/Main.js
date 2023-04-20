@@ -26,6 +26,7 @@ function DoAsync(First, Then, Data) {
 			ForceList(Then).forEach(function(Fun){
 				Fun(CurrTasks[Job].Result);
 			});
+			delete CurrTasks[Job];
 		};
 	}, 50, Job, Then);
 	return Job;
@@ -77,6 +78,7 @@ function ApiCall(Data, Proc) {
 	Req.send();
 };
 
+/*
 function DisplayFriendicaTimeline(Timeline) {
 	ApiCall({Target: "Friendica", Method: Timeline, CallFine: function(Res){
 		DataView.innerHTML = Res.responseText;
@@ -90,6 +92,36 @@ function DisplayFriendicaTimeline(Timeline) {
 			</div>`;
 		});
 	}});
+};
+*/
+
+function MakeWindow(Attrs) {
+	var Window = document.createElement('div');
+	if (Attrs) {
+		Object.keys(Attrs).forEach(function(Attr){
+			Window[Attr] = Attrs[Attr];
+		});
+	};
+	Window.className += ' Window';
+	Root.appendChild(Window);
+	return Window;
+};
+
+function DisplayChannel(Channel) {
+	//DoAsync(FetchMastodon, FillTimeline);
+	ChannelView.innerHTML = `
+		<div class="" style="display: inline-block;">
+			<a href="${Channel.Url}">
+				<div>
+					<img class="" src="${Channel.Banner}"/>
+				</div>
+				<div>
+					<img class="" src="${Channel.Icon}"/>
+					${Channel.Name}
+				</div>
+			</a>
+		</div>
+	`;
 };
 
 function FetchMastodon(Proc) {
@@ -107,8 +139,8 @@ function ResFetchMastodon(Res) {
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
-		TimelineView.innerHTML += `<div class="View Note">
-			<a href="${Note.Author.Url}">
+		TimelineView.innerHTML += `<div class="View Note" data-data="${B64Obj(Note)}">
+			<a href="${Note.Author.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data).Author); return false;">
 				<img class="Author Icon" src="${Note.Author.Icon}"/>
 				${Note.Author.Name}
 			</a>
@@ -127,19 +159,25 @@ function FetchFeatured(Proc) {
 };
 
 function FillFeatured(Categories) {
+	var Window = MakeWindow({className: "Gallery"});
 	Object.values(Categories).forEach(function(Channels){
 		Channels.forEach(function(Channel){
-			PlazasView.innerHTML += `<div>
-				<a href="${Channel.Url}">
-					<img class="" src="${Channel.Banner}"/>
-					<img class="" src="${Channel.Icon}"/>
-					${Channel.Name}
+			Window.innerHTML += `<div data-data="${B64Obj(Channel)}">
+				<a href="${Channel.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data).Author); return false;">
+					<div>
+						<img src="${Channel.Banner}"/>
+					</div>
+					<div>
+						<img src="${Channel.Icon}"/>
+						${Channel.Name}
+					</div>
 				</a>
 			</div>`;
 		});
 	});
 };
 
+/*
 PlazasView.innerHTML = `
 <div>
 	<h3>Featured</h3>
@@ -160,6 +198,7 @@ PlazasView.innerHTML = `
 	</ul>
 </div>
 `;
+*/
 
 DoAsync(FetchFeatured, FillFeatured);
 
