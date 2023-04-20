@@ -18,6 +18,7 @@ pages:
   script: |
     python3 ./Build.py
     mv ./Dist ./public
+    cp ./public/Friendiiverse.html ./public/index.html
   artifacts:
     paths:
     - public

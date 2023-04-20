@@ -18,33 +18,39 @@ var TransSchemas = {
 		},
 	},
 };
-var TransSchemas_ = {
-	"Author": {
-		"Banner": {
-			"Mastodon": "header"
+
+var ApiSchema = {
+	__Account__: {
+		Banner: {
+			Mastodon: "header",
 		},
-		"Picture": {
-			"Mastodon": "avatar"
+		Icon: {
+			Mastodon: "avatar",
 		},
-		"Url": {
-			"Mastodon": "url"
+		Name: {
+			Mastodon: "display_name",
+		},
+		Url: {
+			Mastodon: "url",
 		},
 	},
-	"Note": {
-		"Author": {
-			"Mastodon": "account"
+	Note: {
+		Author: {
+			Mastodon: "account",
 		},
-		"Content": {
-			"Mastodon": "content"
+		Content: {
+			Mastodon: "content",
 		},
-		"Time": {
-			"Mastodon": "created_at"
+		Time: {
+			Mastodon: "created_at",
 		},
-		"Url": {
-			"Mastodon": "url"
+		Url: {
+			Mastodon: "url",
 		},
 	},
 };
+ApiSchema.Author = CopyObj(ApiSchema.__Account__);
+ApiSchema.Channel = CopyObj(ApiSchema.__Account__);
 
 var TransParsers = {
 	Mastodon: {
@@ -55,8 +61,8 @@ var TransParsers = {
 			return JsonTransformA(Data, TransSchemas.Mastodon.Instance, TransSchemas.Mastodon);
 		},
 		Status(Data) {
-			return JsonTransformA(Data, TransSchemas.Mastodon.Status, TransSchemas.Mastodon);
-			//return JsonTransformB(Data, TransSchemas_, TransSchemas_.Note, 'Mastodon');
+			//return JsonTransformA(Data, TransSchemas.Mastodon.Status, TransSchemas.Mastodon);
+			return JsonTransformB(Data, ApiSchema, ApiSchema.Note, 'Mastodon');
 		},
 	},
 };

@@ -20,6 +20,10 @@ function LogDebug(Data, Status) {
 	};
 };
 
+function CopyObj(Obj) {
+	return JSON.parse(JSON.stringify(Obj));
+};
+
 // Transform JSON tree into a new using a template schema
 // DEVNOTE: Unsafe, should check for colliding "__" keys from input tree and act accordingly
 function JsonTransformA(TreesOld, SchemaCurr, SchemaRoot) {
@@ -78,10 +82,10 @@ function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 	};
 };
 function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
-	var TreeNew = NodeNew;
-	Object.keys(NodeNew).forEach(function(KeyNew){
-		if (TypeOld in NodeNew[KeyNew]) {
-			var KeyOld = NodeNew[KeyNew][TypeOld];
+	var TreeNew = CopyObj(NodeNew);
+	Object.keys(TreeNew).forEach(function(KeyNew){
+		if (TypeOld in TreeNew[KeyNew]) {
+			var KeyOld = TreeNew[KeyNew][TypeOld];
 			var ObjOld = TreeOld[KeyOld];
 			if (typeof(KeyOld) == 'object') {
 			// Deep nested children in TreeOld

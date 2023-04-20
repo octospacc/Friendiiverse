@@ -92,12 +92,6 @@ function DisplayFriendicaTimeline(Timeline) {
 	}});
 };
 
-function ResFetchMastodon(Res) {
-	var Notes = TransParsers.Mastodon.Status(Res.responseJson);
-	LogDebug(Notes, 'l');
-	CurrTasks[Res.Proc[0]].Return(Notes);
-};
-
 function FetchMastodon(Proc) {
 	if (UseFakeApi) {
 		ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
@@ -105,17 +99,44 @@ function FetchMastodon(Proc) {
 		ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: ResFetchMastodon}, Proc);
 	};
 };
+function ResFetchMastodon(Res) {
+	var Notes = TransParsers.Mastodon.Status(Res.responseJson);
+	LogDebug(Notes, 'l');
+	CurrTasks[Res.Proc[0]].Return(Notes);
+};
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
 		TimelineView.innerHTML += `<div class="View Note">
 			<a href="${Note.Author.Url}">
-				<img class="Author Picture" src="${Note.Author.Picture}"/>
-				${Note.Author.Url}
+				<img class="Author Icon" src="${Note.Author.Icon}"/>
+				${Note.Author.Name}
 			</a>
 			${Note.Content}
 			<a href="${Note.Url}">${Note.Time}</a>
 		</div>`;
+	});
+};
+
+function FetchFeatured(Proc) {
+	//if (UseFakeApi) {
+		CurrTasks[Proc[0]].Return(FakeApi.Friendiiverse.Featured);
+	//} else {
+		
+	//};
+};
+
+function FillFeatured(Categories) {
+	Object.values(Categories).forEach(function(Channels){
+		Channels.forEach(function(Channel){
+			PlazasView.innerHTML += `<div>
+				<a href="${Channel.Url}">
+					<img class="" src="${Channel.Banner}"/>
+					<img class="" src="${Channel.Icon}"/>
+					${Channel.Name}
+				</a>
+			</div>`;
+		});
 	});
 };
 
@@ -139,3 +160,6 @@ PlazasView.innerHTML = `
 	</ul>
 </div>
 `;
+
+DoAsync(FetchFeatured, FillFeatured);
+
