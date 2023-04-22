@@ -22,7 +22,25 @@ var TransSchemas = {
 */
 
 var ApiSchema = {
-	__Account__: {
+	Note: { // TODO: Figure out renotes
+		Content: {
+			Mastodon: "content",
+			Misskey: "text",
+		},
+		Profile: {
+			Mastodon: "account",
+			Misskey: "user",
+		},
+		Time: {
+			Mastodon: "created_at",
+			Misskey: "createdAt",
+		},
+		Url: {
+			Mastodon: "url",
+		},
+	},
+	Profile: {
+		Avatar: {}, // would "Character" be better?
 		Banner: {
 			Mastodon: "header",
 			Misskey: "bannerUrl",
@@ -39,36 +57,18 @@ var ApiSchema = {
 			Mastodon: "display_name",
 			Misskey: "name",
 		},
-		Url: {
-			Mastodon: "url",
-		},
-	},
-	Note: {
-		Author: {
-			Mastodon: "account",
-			Misskey: "user",
-		},
-		Content: {
-			Mastodon: "content",
-			Misskey: "text",
-		},
-		Time: {
-			Mastodon: "created_at",
-			Misskey: "createdAt",
-		},
+		Type: {}, // user, bot, channel, group
 		Url: {
 			Mastodon: "url",
 		},
 	},
 };
-ApiSchema.Author = CopyObj(ApiSchema.__Account__);
-ApiSchema.Channel = CopyObj(ApiSchema.__Account__);
 
 var TransParsers = {
 	Mastodon: {
 		Account(Data) {
 			//return JsonTransformA(Data, TransSchemas.Mastodon.Author, TransSchemas.Mastodon);
-			return JsonTransformB(Data, ApiSchema, ApiSchema.Author, 'Mastodon');
+			return JsonTransformB(Data, ApiSchema, ApiSchema.Profile, 'Mastodon');
 		},
 		/*
 		Instance(Data) {

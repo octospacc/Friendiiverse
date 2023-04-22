@@ -1,8 +1,9 @@
-var CurrTasks = {};
+var Tasker = {};
+var ApiCache = {Notes: {}, Profiles: {},};
 
 function DoAsync(First, Then, Data) {
 	var Job = RndId();
-	CurrTasks[Job] = {
+	Tasker[Job] = {
 		Remains: 0,
 		Return(Data) {
 			this.Remains -= 1;
@@ -13,20 +14,20 @@ function DoAsync(First, Then, Data) {
 	ForceList(First).forEach(function(Fun, Data){
 		var Task = RndId();
 		var Proc = [Job, Task];
-		CurrTasks[Job][Task] = {};
-		CurrTasks[Job].Remains += 1;
+		Tasker[Job][Task] = {};
+		Tasker[Job].Remains += 1;
 		//Fun(Proc, Data);
 		Data ? Fun(Data, Proc) : Fun(Proc);
 	});
 	// Continuosly check when First functs completed
-	CurrTasks[Job].Interval = setInterval(function(Job, Then){
-		if (CurrTasks[Job].Remains <= 0) {
-			clearInterval(CurrTasks[Job].Interval);
+	Tasker[Job].Interval = setInterval(function(Job, Then){
+		if (Tasker[Job].Remains <= 0) {
+			clearInterval(Tasker[Job].Interval);
 			// Call all Then functs
 			ForceList(Then).forEach(function(Fun){
-				Fun(CurrTasks[Job].Result);
+				Fun(Tasker[Job].Result);
 			});
-			delete CurrTasks[Job];
+			delete Tasker[Job];
 		};
 	}, 50, Job, Then);
 	return Job;
@@ -107,19 +108,20 @@ function MakeWindow(Attrs) {
 	return Window;
 };
 
-function DisplayChannel(Channel) {
-	var Window = MakeWindow({className: "Channel"});
+function DisplayProfile(Profile) {
+	var Window = MakeWindow({className: "Profile"});
 	Window.innerHTML += `<div class="" style="display: inline-block;">
-		<a href="${Channel.Url}">
+		<a href="${Profile.Url}">
 			<div>
-				<img class="" src="${Channel.Banner}"/>
+				<img class="" src="${Profile.Banner}"/>
 			</div>
 			<div>
-				<img class="" src="${Channel.Icon}"/>
-				${Channel.Name}
+				<img class="" src="${Profile.Icon}"/>
+				${Profile.Name}
 			</div>
 		</a>
 	</div>`;
+	DoAsync(FetchMastodon, FillTimeline);
 };
 
 function FetchMastodon(Proc) {
@@ -132,15 +134,15 @@ function FetchMastodon(Proc) {
 function ResFetchMastodon(Res) {
 	var Notes = TransParsers.Mastodon.Status(Res.responseJson);
 	LogDebug(Notes, 'l');
-	CurrTasks[Res.Proc[0]].Return(Notes);
+	Tasker[Res.Proc[0]].Return(Notes);
 };
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
-		TimelineView.innerHTML += `<div class="View Note" data-data="${B64Obj(Note)}">
-			<a href="${Note.Author.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data).Author); return false;">
-				<img class="Author Icon" src="${Note.Author.Icon}"/>
-				${Note.Author.Name}
+		Root.lastChild.innerHTML += `<div class="View Note">
+			<a href="${Note.Profile.Url}" onclick="DisplayProfile(ApiCache.Profiles['${Note.Profile.Url}']); return false;">
+				<img class="Profile Icon" src="${Note.Profile.Icon}"/>
+				${Note.Profile.Name}
 			</a>
 			${Note.Content}
 			<a href="${Note.Url}">${Note.Time}</a>
@@ -150,7 +152,13 @@ function FillTimeline(Notes) {
 
 function FetchFeatured(Proc) {
 	//if (UseFakeApi) {
-		CurrTasks[Proc[0]].Return(FakeApi.Friendiiverse.Featured);
+		var Featured = FakeApi.Friendiiverse.Featured;
+		Object.values(Featured).forEach(function(Profiles){
+			Profiles.forEach(function(Profile){
+				ApiCache.Profiles[Profile.Url] = Profile;
+			});
+		});
+		Tasker[Proc[0]].Return(Featured);
 	//} else {
 		
 	//};
@@ -158,16 +166,16 @@ function FetchFeatured(Proc) {
 
 function FillFeatured(Categories) {
 	var Window = MakeWindow({className: "Gallery"});
-	Object.values(Categories).forEach(function(Channels){
-		Channels.forEach(function(Channel){
-			Window.innerHTML += `<div data-data="${B64Obj(Channel)}">
-				<a href="${Channel.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data)); return false;">
+	Object.values(Categories).forEach(function(Profiles){
+		Profiles.forEach(function(Profile){
+			Window.innerHTML += `<div>
+				<a href="${Profile.Url}" onclick="DisplayProfile(ApiCache.Profiles['${Profile.Url}']); return false;">
 					<div>
-						<img src="${Channel.Banner}"/>
+						<img src="${Profile.Banner}"/>
 					</div>
 					<div>
-						<img src="${Channel.Icon}"/>
-						${Channel.Name}
+						<img src="${Profile.Icon}"/>
+						${Profile.Name}
 					</div>
 				</a>
 			</div>`;
