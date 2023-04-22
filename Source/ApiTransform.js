@@ -31,6 +31,9 @@ var ApiSchema = {
 			Mastodon: "account",
 			Misskey: "user",
 		},
+		Quoting: {
+			Mastodon: "reblog",
+		},
 		Time: {
 			Mastodon: "created_at",
 			Misskey: "createdAt",
@@ -57,24 +60,34 @@ var ApiSchema = {
 			Mastodon: "display_name",
 			Misskey: "name",
 		},
-		Type: {}, // user, bot, channel, group
+		Type: { // user, bot, channel, group
+			Mastodon: {"__Eval__": `
+				var Type;
+				if (TreeOld.bot) Type = 'Bot';
+				if (TreeOld.group) Type = 'Group';
+				TreeNew[KeyNew] = Type;
+			`},
+		},
 		Url: {
 			Mastodon: "url",
 		},
 	},
 };
 
+function ApiTransform(Data, FromSource, DestType) {
+	return JsonTransformB(Data, ApiSchema, ApiSchema[DestType], FromSource);
+};
+
+/*
 var TransParsers = {
 	Mastodon: {
 		Account(Data) {
 			//return JsonTransformA(Data, TransSchemas.Mastodon.Author, TransSchemas.Mastodon);
 			return JsonTransformB(Data, ApiSchema, ApiSchema.Profile, 'Mastodon');
 		},
-		/*
 		Instance(Data) {
 			return JsonTransformA(Data, TransSchemas.Mastodon.Instance, TransSchemas.Mastodon);
 		},
-		*/
 		Status(Data) {
 			//return JsonTransformA(Data, TransSchemas.Mastodon.Status, TransSchemas.Mastodon);
 			return JsonTransformB(Data, ApiSchema, ApiSchema.Note, 'Mastodon');
@@ -83,3 +96,4 @@ var TransParsers = {
 	Misskey: {
 	},
 };
+*/

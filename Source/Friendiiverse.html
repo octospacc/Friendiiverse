@@ -13,6 +13,7 @@ var FriendicaCredentials = 'redacted:redacted';
 // Development
 var Debug = true;
 var UseFakeApi = true;
+var UserData = {};
 		</script>
 	</head>
 	<body>
@@ -26,15 +27,12 @@ var UseFakeApi = true;
 			</div>
 			<!--
 			<div id="PlazasView"></div>
-			<textarea id="Input"></textarea>
-			<button id="Post">Post</button>
-			<div id="ChannelView"></div>
-			<div id="TimelineView"></div>
 			<xmp id="DataView"></xmp>
 			-->
 		</div>
 		<div id="Bottom">
-			<a href="javascript:void(0);" onclick="Root.lastChild.remove();">↩️ Back</a>
+			<button onclick="Root.lastChild.remove();">↩️ Back</button>
+			<button onclick="ComposeNote();">Note</button>
 			<a href="https://gitlab.com/octtspacc/Friendiiverse">📜️ Source Code</a>
 		</div>
 		<script>NoscriptView.remove();</script>

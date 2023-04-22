@@ -30,7 +30,7 @@ FakeApi.Mastodon.Account = {
 	url: "https://mastodon.example.com/@Tester",
 };
 FakeApi.Friendiiverse.Featured.Featured.push(
-	TransParsers.Mastodon.Account(FakeApi.Mastodon.Account));
+	ApiTransform(FakeApi.Mastodon.Account, 'Mastodon', 'Profile'));
 
 FakeApi.Mastodon.Status = {
 	account: FakeApi.Mastodon.Account,

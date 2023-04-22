@@ -28,6 +28,14 @@ function CopyObj(Obj) {
 	return JSON.parse(JSON.stringify(Obj));
 };
 
+function ExtrimObj(Obj) {
+	Obj = CopyObj(Obj);
+	Object.keys(Obj).forEach(function(Key){
+		Obj[Key] = undefined;
+	});
+	return Obj;
+};
+
 function B64Obj(Obj) {
 	return btoa(JSON.stringify(Obj));
 };
@@ -81,6 +89,7 @@ function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 	});
 	return TreeNew;
 };
+
 function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 	if (Array.isArray(TreesOld)) {
 		var ListNew = [];
@@ -99,10 +108,14 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 			var KeyOld = TreeNew[KeyNew][TypeOld];
 			var ObjOld = TreeOld[KeyOld];
 			if (IsObj(KeyOld)) {
-			// Deep nested children in TreeOld
-				
+			// Object in SchemaNew / Deep nested children in TreeOld
+				Object.keys(KeyOld).forEach(function(KeyObj){
+					if (KeyObj === '__Eval__') {
+						eval(KeyOld[KeyObj]);
+					};
+				});
 			} else {
-			// Direct children in TreeOld
+			// Value in SchemaNew / Direct children in TreeOld
 				if (IsObj(ObjOld)) {
 					TreeNew[KeyNew] = JsonTransformB(ObjOld, SchemaNew, SchemaNew[KeyNew], TypeOld);
 				} else {
@@ -111,5 +124,6 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 			};
 		};
 	});
+	TreeNew.__TreeOld__ = TreeOld;
 	return TreeNew;
 };

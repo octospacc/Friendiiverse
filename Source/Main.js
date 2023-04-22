@@ -132,7 +132,7 @@ function FetchMastodon(Proc) {
 	};
 };
 function ResFetchMastodon(Res) {
-	var Notes = TransParsers.Mastodon.Status(Res.responseJson);
+	var Notes = ApiTransform(Res.responseJson, 'Mastodon', 'Note');
 	LogDebug(Notes, 'l');
 	Tasker[Res.Proc[0]].Return(Notes);
 };
@@ -196,15 +196,22 @@ PlazasView.innerHTML = `
 		</li>
 	</ul>
 </div>
-<div>
-	<h3>Categories</h3>
-	<ul>
-		<li>Testing</li>
-		<li>#fediverse</li>
-	</ul>
-</div>
 `;
 */
+
+function ComposeNote() {
+	var Window = MakeWindow();
+	Window.innerHTML += `
+		<h2>Compose</h2>
+		<textarea style="width: 100%; height: 20em;"></textarea>
+		<p>
+			<button onclick="PostNote(this.parentNode.parentNode.querySelector('textarea').value);">Note!</button>
+		</p>
+	`;
+};
+function PostNote(Text) {
+	Obj = ExtrimObj(ApiSchema.Note);
+};
 
 DoAsync(FetchFeatured, FillFeatured);
 CoverView.remove();

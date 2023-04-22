@@ -16,6 +16,10 @@ img, video {
 	max-width: 100%;
 }
 
+#Bottom > button {
+	height: 100%;
+}
+
 #Root {
 	/*margin-bottom: 2em;*/
 }
