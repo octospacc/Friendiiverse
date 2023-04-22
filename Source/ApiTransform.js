@@ -66,10 +66,11 @@ ApiSchema.Channel = CopyObj(ApiSchema.__Account__);
 
 var TransParsers = {
 	Mastodon: {
-		/*
 		Account(Data) {
-			return JsonTransformA(Data, TransSchemas.Mastodon.Author, TransSchemas.Mastodon);
+			//return JsonTransformA(Data, TransSchemas.Mastodon.Author, TransSchemas.Mastodon);
+			return JsonTransformB(Data, ApiSchema, ApiSchema.Author, 'Mastodon');
 		},
+		/*
 		Instance(Data) {
 			return JsonTransformA(Data, TransSchemas.Mastodon.Instance, TransSchemas.Mastodon);
 		},

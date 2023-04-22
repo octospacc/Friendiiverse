@@ -14,11 +14,13 @@ FakeApi.Friendiiverse.Featured.Featured.push({
 	Banner: "https://picsum.photos/seed/Testing.Banner/320/180",
 	Icon: "https://picsum.photos/seed/Testing.Icon/64",
 	Name: "Testing Channel",
+	Url: "https://lemmy.example.com/c/Testing",
 });
 FakeApi.Friendiiverse.Featured.Categories.push({
 	Banner: "https://picsum.photos/seed/fediverse.Banner/320/180",
 	Icon: "https://picsum.photos/seed/fediverse.Icon/64",
 	Name: "#fediverse",
+	Url: "https://mastodon.example.com/hashtag/fediverse",
 });
 
 FakeApi.Mastodon.Account = {
@@ -27,6 +29,8 @@ FakeApi.Mastodon.Account = {
 	header: "https://picsum.photos/seed/Tester.Banner/320/180",
 	url: "https://mastodon.example.com/@Tester",
 };
+FakeApi.Friendiiverse.Featured.Featured.push(
+	TransParsers.Mastodon.Account(FakeApi.Mastodon.Account));
 
 FakeApi.Mastodon.Status = {
 	account: FakeApi.Mastodon.Account,

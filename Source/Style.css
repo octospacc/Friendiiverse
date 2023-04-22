@@ -3,7 +3,7 @@ img, video {
 }
 
 #Root {
-	margin-bottom: 2em;
+	/*margin-bottom: 2em;*/
 }
 
 #Bottom {
@@ -18,6 +18,18 @@ img, video {
 
 #DataView {
 	white-space: break-spaces;
+}
+
+.Window {
+	background: white;
+	position: absolute;
+	
+	width: 100%;
+	max-width: 100%;
+	min-width: 100%;
+	
+	min-height: calc(100% - 4em);
+	padding-bottom: 2em;
 }
 
 .View.Note {

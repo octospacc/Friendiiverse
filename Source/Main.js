@@ -108,20 +108,18 @@ function MakeWindow(Attrs) {
 };
 
 function DisplayChannel(Channel) {
-	//DoAsync(FetchMastodon, FillTimeline);
-	ChannelView.innerHTML = `
-		<div class="" style="display: inline-block;">
-			<a href="${Channel.Url}">
-				<div>
-					<img class="" src="${Channel.Banner}"/>
-				</div>
-				<div>
-					<img class="" src="${Channel.Icon}"/>
-					${Channel.Name}
-				</div>
-			</a>
-		</div>
-	`;
+	var Window = MakeWindow({className: "Channel"});
+	Window.innerHTML += `<div class="" style="display: inline-block;">
+		<a href="${Channel.Url}">
+			<div>
+				<img class="" src="${Channel.Banner}"/>
+			</div>
+			<div>
+				<img class="" src="${Channel.Icon}"/>
+				${Channel.Name}
+			</div>
+		</a>
+	</div>`;
 };
 
 function FetchMastodon(Proc) {
@@ -163,7 +161,7 @@ function FillFeatured(Categories) {
 	Object.values(Categories).forEach(function(Channels){
 		Channels.forEach(function(Channel){
 			Window.innerHTML += `<div data-data="${B64Obj(Channel)}">
-				<a href="${Channel.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data).Author); return false;">
+				<a href="${Channel.Url}" onclick="DisplayChannel(UnB64Obj(this.parentNode.dataset.data)); return false;">
 					<div>
 						<img src="${Channel.Banner}"/>
 					</div>
@@ -201,4 +199,4 @@ PlazasView.innerHTML = `
 */
 
 DoAsync(FetchFeatured, FillFeatured);
-
+CoverView.remove();
