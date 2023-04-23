@@ -13,7 +13,11 @@ var FriendicaCredentials = 'redacted:redacted';
 // Development
 var Debug = true;
 var UseFakeApi = true;
-var UserData = {};
+		</script>
+		<script data-build-json="true">
+var Assets = {
+	ImgSample: "./Sample.jpg",
+};
 		</script>
 	</head>
 	<body>
@@ -32,14 +36,19 @@ var UserData = {};
 		</div>
 		<div id="Bottom">
 			<button onclick="Root.lastChild.remove();">↩️ Back</button>
-			<button onclick="ComposeNote();">Note</button>
+			<button onclick="ComposeNote();">📝 Note</button>
+			<button onclick="ManageSettings();">⚙️ Settings</button>
+			<button>Profile</button>
 			<a href="https://gitlab.com/octtspacc/Friendiiverse">📜️ Source Code</a>
+			<span>(Pre-Alpha Development Version)</span>
 		</div>
 		<script>NoscriptView.remove();</script>
 		<script src="./Utils.js"></script>
 		<script src="./Strings.js"></script>
 		<script src="./ApiTransform.js"></script>
-		<script src="./FakeApi.js"></script>
+		<script src="./ApiFake.js"></script>
+		<script src="./Net.js"></script>
+		<script src="./Elems.js"></script>
 		<script src="./Main.js"></script>
 		<script>(function(){
 			if (Debug && new URLSearchParams(window.location.hash).get('#Eruda')) {

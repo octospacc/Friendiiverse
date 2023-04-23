@@ -22,7 +22,12 @@ var TransSchemas = {
 */
 
 var ApiSchema = {
-	Note: { // TODO: Figure out renotes
+	__All__: {
+		SourceInstance: {
+			__Eval__: "",
+		},
+	},
+	Note: {
 		Content: {
 			Mastodon: "content",
 			Misskey: "text",
@@ -61,11 +66,10 @@ var ApiSchema = {
 			Misskey: "name",
 		},
 		Type: { // user, bot, channel, group
-			Mastodon: {"__Eval__": `
-				var Type;
-				if (TreeOld.bot) Type = 'Bot';
-				if (TreeOld.group) Type = 'Group';
-				TreeNew[KeyNew] = Type;
+			Mastodon: {__EvalSet__: `
+				if (TreeOld.bot) 'Bot';
+				else
+				if (TreeOld.group) 'Group';
 			`},
 		},
 		Url: {

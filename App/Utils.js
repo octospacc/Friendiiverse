@@ -3,7 +3,11 @@ function ForceList(Item) {
 };
 
 function RndId() {
-	return `${Date.now()}${Math.random()}`;
+	return `${Date.now()}${Math.random() + Math.random()}`;
+};
+
+function UrlDomain(Url) {
+	return Url.split('//')[1].split('/')[0];
 };
 
 function LogDebug(Data, Status) {
@@ -112,6 +116,9 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 				Object.keys(KeyOld).forEach(function(KeyObj){
 					if (KeyObj === '__Eval__') {
 						eval(KeyOld[KeyObj]);
+					} else
+					if (KeyObj === '__EvalSet__') {
+						TreeNew[KeyNew] = eval(KeyOld[KeyObj]);
 					};
 				});
 			} else {
