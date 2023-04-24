@@ -20,7 +20,7 @@ function LogDebug(Data, Status) {
 				Data[i] = JSON.parse(Data[i]);
 			} catch(_){};
 		};
-		console[{l: "log", e: "error"}[Status.toLowerCase()]](Data);
+		console[{l: "log", e: "error"}[Status.toLowerCase()]](LogDebug.caller, Data);
 	};
 };
 
@@ -95,6 +95,7 @@ function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 };
 
 function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
+	LogDebug([TreesOld, SchemaNew, NodeNew, TypeOld]);
 	if (Array.isArray(TreesOld)) {
 		var ListNew = [];
 		ForceList(TreesOld).forEach(function(TreeOld){
@@ -102,7 +103,9 @@ function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 		});
 		return ListNew;
 	} else {
-		return JsonTransformCycleB(TreesOld, SchemaNew, NodeNew, TypeOld);
+		if (TreesOld) {
+			return JsonTransformCycleB(TreesOld, SchemaNew, NodeNew, TypeOld);
+		};
 	};
 };
 function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {

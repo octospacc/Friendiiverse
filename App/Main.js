@@ -1,7 +1,16 @@
 var Persist = {Servers: {}, Sources: {}, Identities: {},};
 var Present = CopyObj(Persist);
 var Tasker = {};
-var ApiCache = {Urls: {},};
+var ApiCache = {
+	__Store__(Data, Key, Where) {
+		ApiCache[Where][Key] = Data;
+		ApiCache[Where][Key].__Time__ = Date.now();
+	},
+	__UrlStore__(Data) {
+		ApiCache.__Store__(Data, Data.Url, 'Urls');
+	},
+	Urls: {},
+};
 
 Assets._ = function _(Name) {
 	if (Name in Assets) {
@@ -9,6 +18,17 @@ Assets._ = function _(Name) {
 			return Assets[Name];
 		} else {
 			return `./Assets/${Assets[Name]}`;
+		};
+	};
+};
+
+Strings._ = function _(Name) {
+	// TODO: Handle arbitrary nestation
+	if (Name in Strings) {
+		if (Strings[Name]['en']) { // TODO{ Select this language from user config
+			return Strings[Name]['en'];
+		} else {
+			return Strings[Name].en;
 		};
 	};
 };
@@ -46,7 +66,7 @@ function DoAsync(First, Then, Data) {
 };
 
 function DisplayProfile(Profile) {
-	var Window = MakeWindow({className: "Profile"});
+	var Window = MkWindow({className: "Profile"});
 	Window.innerHTML += `<div class="" style="display: inline-block;">
 		<a href="${Profile.Url}">
 			<div>
@@ -62,14 +82,19 @@ function DisplayProfile(Profile) {
 };
 
 function FetchNotes(Profile, Proc) {
-	
+	var Soft = Profile.__Software__;
+	NetApiCall({Target: Soft, Method: ApiEndpoints.FetchNotes[Soft](Profile), CallFine: function(Res){
+		var Notes = ApiTransform(Res.responseJson, 'Mastodon', 'Note');
+		LogDebug(Notes, 'l');
+		Tasker[Res.Proc[0]].Return(Notes);
+	}}, Proc);
 };
 
 function FetchMastodon(Proc) {
 	if (UseFakeApi) {
 		ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
 	} else {
-		ApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: ResFetchMastodon}, Proc);
+		NetApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: ResFetchMastodon}, Proc);
 	};
 };
 function ResFetchMastodon(Res) {
@@ -80,12 +105,13 @@ function ResFetchMastodon(Res) {
 
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
+		ApiCache.__UrlStore__(Note.Profile);
 		Root.lastChild.innerHTML += `<div class="View Note">
 			<a href="${Note.Profile.Url}" onclick="DisplayProfile(ApiCache.Urls['${Note.Profile.Url}']); return false;">
 				<img class="Profile Icon" src="${Note.Profile.Icon}"/>
 				${Note.Profile.Name}
 			</a>
-			${Note.Content}
+			${SanitizeHtml(Note.Content)}
 			<a href="${Note.Url}">${Note.Time}</a>
 		</div>`;
 	});
@@ -106,7 +132,7 @@ function FetchFeatured(Proc) {
 };
 
 function FillFeatured(Categories) {
-	var Window = MakeWindow({className: "Gallery"});
+	var Window = MkWindow({className: "Gallery"});
 	Object.values(Categories).forEach(function(Profiles){
 		Profiles.forEach(function(Profile){
 			Window.innerHTML += `<div>
@@ -141,7 +167,7 @@ PlazasView.innerHTML = `
 */
 
 function ComposeNote() {
-	var Window = MakeWindow();
+	var Window = MkWindow();
 	Window.innerHTML += `
 		<h2>Compose</h2>
 		<p>Posting in: [Channel]</p>
@@ -158,11 +184,11 @@ function PostNote(Text) {
 };
 
 function ManageSettings() {
-	MakeWindow().innerHTML = `
+	MkWindow().innerHTML = `
 		<h2>Settings</h2>
 		<h3>Misc</h3>
 		<p>
-			Language: ${Dropdown()}
+			Language: ${MkSelectMenu([{innerHTML: "en"}, {innerHTML: "it"},]).outerHTML}
 		</p>
 		<p>
 			Theme:

@@ -12,7 +12,7 @@ var FriendicaCredentials = 'redacted:redacted';
 
 // Development
 var Debug = true;
-var UseFakeApi = true;
+var UseFakeApi = false;
 		</script>
 		<script data-build-json="true">
 var Assets = {
@@ -43,6 +43,8 @@ var Assets = {
 			<span>(Pre-Alpha Development Version)</span>
 		</div>
 		<script>NoscriptView.remove();</script>
+		<script src="./Polyfill.js"></script>
+		<script src="./Lib/cleanHTML.js"></script>
 		<script src="./Utils.js"></script>
 		<script src="./Strings.js"></script>
 		<script src="./ApiTransform.js"></script>

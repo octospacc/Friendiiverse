@@ -38,6 +38,7 @@ var ApiSchema = {
 		},
 		Quoting: {
 			Mastodon: "reblog",
+			Misskey: "renote",
 		},
 		Time: {
 			Mastodon: "created_at",
@@ -78,7 +79,16 @@ var ApiSchema = {
 	},
 };
 
+var ApiEndpoints = {
+	FetchNotes: {
+		Mastodon(Profile) {
+			return `accounts/${Profile.Id}/statuses`;
+		},
+	},
+};
+
 function ApiTransform(Data, FromSource, DestType) {
+	LogDebug([Data, DestType, FromSource]);
 	return JsonTransformB(Data, ApiSchema, ApiSchema[DestType], FromSource);
 };
 

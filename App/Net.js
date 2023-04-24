@@ -1,4 +1,4 @@
-function ApiCall(Data, Proc) {
+function NetApiCall(Data, Proc) {
 	// Data = {Target: "Friendica", Method: "...", Data: {}, Call: (), CallFine: (), CallFail: ()}
 	var Req = new XMLHttpRequest();
 	Req.Proc = Proc;
