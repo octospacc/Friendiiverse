@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import os
+from base64 import b64encode
+from mimetypes import guess_type
 from pathlib import Path
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -17,11 +19,26 @@ def FragReplace(Find, Replace, Pattern='*.*'):
 		with open(File, 'r') as Frag:
 			Frag = Replace.format(File=File, Frag=Frag.read())
 			for Prefix in ('', './'):
-				File = Prefix + File
-				Base = Base.replace(Find.format(File=File), Frag)
+				Name = Prefix + File
+				Base = Base.replace(Find.format(File=Name), Frag)
 
-#BaseNew = []
-#BaseNew += Base.split('<script data-build-json="true">')
+BaseNew = ''
+Split = '<script data-build-json="true">'
+Frags = Base.split(Split)
+BaseNew += Frags[0] + Split
+Split = '</script>'
+Frags = Frags[1].split(Split)
+for File in Path('./Assets').rglob('*.*'):
+	File = str(File)
+	Mime = guess_type(File)
+	Mime = (Mime[0] if Mime else 'application/octet-stream')
+	with open(File, 'rb') as Frag:
+		Frag = b64encode(Frag.read()).decode()
+		for Prefix in ('', './'):
+			Name = Prefix + '/'.join(File.split('/')[1:])
+			Frags[0] = Frags[0].replace(f'"{Name}"', f'"data:{Mime};base64,{Frag}"')
+BaseNew += Split.join(Frags)
+Base = BaseNew
 
 FragReplace('<link rel="stylesheet" href="{File}"/>', '<style data-source="{File}">{Frag}</style>',   '*.css')
 FragReplace('<script src="{File}"></script>',         '<script data-source="{File}">{Frag}</script>', '*.js')

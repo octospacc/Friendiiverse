@@ -3,6 +3,16 @@ var Present = CopyObj(Persist);
 var Tasker = {};
 var ApiCache = {Urls: {},};
 
+Assets._ = function _(Name) {
+	if (Name in Assets) {
+		if (Assets[Name].startsWith('data:')) {
+			return Assets[Name];
+		} else {
+			return `./Assets/${Assets[Name]}`;
+		};
+	};
+};
+
 function DoAsync(First, Then, Data) {
 	var Job = RndId();
 	Tasker[Job] = {
@@ -149,10 +159,29 @@ function PostNote(Text) {
 
 function ManageSettings() {
 	MakeWindow().innerHTML = `
-		* Sources
-		* Identities
-		* Data Import/Export
-		* Cache Persistance
+		<h2>Settings</h2>
+		<h3>Misc</h3>
+		<p>
+			Language: ${Dropdown()}
+		</p>
+		<p>
+			Theme:
+		</p>
+		<p>
+			<label>Wait <input type="number"/> seconds after clicking send for a note to be sent</label>
+		</p>
+		<h3>Identities</h3>
+		...
+		<h3>Sources</h3>
+		...
+		<h3>Data</h3>
+		<p>
+			<button>Import User Data</button>
+			<button>Export User Data</button>
+		</p>
+		<p>
+			<label><input type="checkbox"/> Persist cache on app reload</label>
+		</p>
 	`;
 };
 
