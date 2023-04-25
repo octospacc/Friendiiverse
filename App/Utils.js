@@ -5,6 +5,9 @@ function ForceList(Item) {
 function RndId() {
 	return `${Date.now()}${Math.random() + Math.random()}`;
 };
+function RndHtmlId(Tag) {
+	return `Rnd-${Tag}-${RndId().replace('.', '-')}`;
+};
 
 function UrlBase(Url) {
 	var Lower = Url.toLowerCase();

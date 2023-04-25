@@ -65,6 +65,16 @@ function DoAsync(First, Then, Data) {
 	return Job;
 };
 
+function HtmlAssign(Id, Data) {
+	Array.from(document.getElementsByClassName(`${Id}`)).forEach(function(El){
+		var Toks = El.dataset.assign.split(' ');
+		var Prop = Toks.slice(1).join(' ');
+		if (Data[Prop] !== undefined) {
+			El[Toks[0]] = Data[Prop];
+		};
+	});
+};
+
 function DisplayProfile(Profile) {
 	var Window = MkWindow({className: "Profile"});
 	Window.innerHTML += `<div class="" style="display: inline-block;">
@@ -133,35 +143,28 @@ function FillTimeline(Notes) {
 	});
 };
 
-function FetchFeatured(Proc) {
-	//if (UseFakeApi) {
-		var Featured = FakeApi.Friendiiverse.Featured;
-		Object.values(Featured).forEach(function(Profiles){
-			Profiles.forEach(function(Profile){
-				ApiCache.Urls[Profile.Url] = Profile;
-			});
-		});
-		Tasker[Proc[0]].Return(Featured);
-	//} else {
-		
-	//};
-};
-
-function FillFeatured(Categories) {
+function FillHome() {
 	var Window = MkWindow({className: "Gallery"});
-	Object.values(Categories).forEach(function(Profiles){
-		Profiles.forEach(function(Profile){
+	var Categories = ApiStatic.Featured;
+	Object.keys(Categories).forEach(function(Category){
+		Window.innerHTML += `<h2>Featured ${Category}</h2>`;
+		Categories[Category].forEach(function(Profile){
+			ApiCache.Urls[Profile.Url] = Profile;
+			var Rnd = RndHtmlId();
 			Window.innerHTML += `<div>
 				<a href="${Profile.Url}" onclick="${Profile.__Display__}('${Profile.Url}'); return false;">
 					<div>
-						<img src="${Profile.Banner}"/>
+						<img class="${Rnd}" data-assign="src thumbnail" src="${Profile.Banner}"/>
 					</div>
 					<div>
-						<img src="${Profile.Icon}"/>
-						${Profile.Name}
+						<img class="${Rnd}" data-assign="src Icon" src="${Profile.Icon}"/>
+						<span class="${Rnd}" data-assign="innerHTML title">${Profile.Url}</span>
 					</div>
 				</a>
 			</div>`;
+			NetApiCall({Target: Profile.Url, Method: "GET instance", CallFine: function(Res){
+				HtmlAssign(Rnd, Res.responseJson);
+			}});
 		});
 	});
 };
@@ -213,9 +216,9 @@ function ManageSettings() {
 			<label>Wait <input type="number"/> seconds after clicking send for a note to be sent</label>
 		</p>
 		<h3>Identities</h3>
-		...
+		${MkListMenu(Present.Identities, ElsCfg.ListMenu.FullControl).outerHTML}
 		<h3>Sources</h3>
-		...
+		${MkListMenu(Present.Sources, ElsCfg.ListMenu.FullControl).outerHTML}
 		<h3>Data</h3>
 		<p>
 			<button>Import User Data</button>
@@ -227,5 +230,5 @@ function ManageSettings() {
 	`;
 };
 
-DoAsync(FetchFeatured, FillFeatured);
+FillHome();
 CoverView.remove();
