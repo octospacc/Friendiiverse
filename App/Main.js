@@ -43,7 +43,7 @@ function DoAsync(First, Then, Data) {
 		},
 	};
 	// Call all First functs
-	ForceList(First).forEach(function(Fun, Data){
+	ForceList(First).forEach(function(Fun){
 		var Task = RndId();
 		var Proc = [Job, Task];
 		Tasker[Job][Task] = {};
@@ -78,24 +78,40 @@ function DisplayProfile(Profile) {
 			</div>
 		</a>
 	</div>`;
-	DoAsync(FetchMastodon, FillTimeline, Profile);
+	DoAsync(FetchNotes, FillTimeline, Profile);
+};
+
+function DisplayMastodonTimeline(Data) {
+	var Window = MkWindow();
+	Window.innerHTML += `<div class="" style="display: inline-block;">
+		<a href="${Profile.Url}">
+			<div>
+				<img class="" src="${Profile.Banner}"/>
+			</div>
+			<div>
+				<img class="" src="${Profile.Icon}"/>
+				${Profile.Name}
+			</div>
+		</a>
+	</div>`;
+	DoAsync(FetchNotes, FillTimeline, Profile);
 };
 
 function FetchNotes(Profile, Proc) {
 	var Soft = Profile.__Software__;
-	NetApiCall({Target: Soft, Method: ApiEndpoints.FetchNotes[Soft](Profile), CallFine: function(Res){
-		var Notes = ApiTransform(Res.responseJson, 'Mastodon', 'Note');
+	NetApiCall({Target: UrlBase(Profile.Url), Method: ApiEndpoints.FetchNotes['Mastodon'](Profile), CallFine: function(Res){
+		var Notes = ApiTransform(Res.responseJson, Soft, 'Note');
 		LogDebug(Notes, 'l');
 		Tasker[Res.Proc[0]].Return(Notes);
 	}}, Proc);
 };
 
 function FetchMastodon(Proc) {
-	if (UseFakeApi) {
-		ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
-	} else {
-		NetApiCall({Target: "Mastodon", Method: "timelines/public", CallFine: ResFetchMastodon}, Proc);
-	};
+	//if (UseFakeApi) {
+	//	ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
+	//} else {
+		NetApiCall({Target: "Mastodon", Method: "GET timelines/public", CallFine: ResFetchMastodon}, Proc);
+	//};
 };
 function ResFetchMastodon(Res) {
 	var Notes = ApiTransform(Res.responseJson, 'Mastodon', 'Note');
@@ -136,7 +152,7 @@ function FillFeatured(Categories) {
 	Object.values(Categories).forEach(function(Profiles){
 		Profiles.forEach(function(Profile){
 			Window.innerHTML += `<div>
-				<a href="${Profile.Url}" onclick="DisplayProfile(ApiCache.Urls['${Profile.Url}']); return false;">
+				<a href="${Profile.Url}" onclick="${Profile.__Display__}('${Profile.Url}'); return false;">
 					<div>
 						<img src="${Profile.Banner}"/>
 					</div>

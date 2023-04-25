@@ -22,11 +22,11 @@ var TransSchemas = {
 */
 
 var ApiSchema = {
-	__All__: {
-		SourceInstance: {
-			__Eval__: "",
-		},
-	},
+	//__All__: {
+	//	__Software__: {
+	//		__EvalSet__: "TypeOld",
+	//	},
+	//},
 	Note: {
 		Content: {
 			Mastodon: "content",
@@ -82,7 +82,7 @@ var ApiSchema = {
 var ApiEndpoints = {
 	FetchNotes: {
 		Mastodon(Profile) {
-			return `accounts/${Profile.Id}/statuses`;
+			return `GET accounts/${Profile.Id}/statuses`;
 		},
 	},
 };

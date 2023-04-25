@@ -11,6 +11,13 @@ var FakeApi = {
 };
 
 FakeApi.Friendiiverse.Featured.Featured.push({
+	//Banner: "https://picsum.photos/seed/Testing.Banner/320/180",
+	//Icon: "https://picsum.photos/seed/Testing.Icon/64",
+	Name: "mastodon.social",
+	Url: "https://mastodon.social",
+	__Display__: "DisplayMastodonTimeline",
+});
+FakeApi.Friendiiverse.Featured.Featured.push({
 	Banner: "https://picsum.photos/seed/Testing.Banner/320/180",
 	Icon: "https://picsum.photos/seed/Testing.Icon/64",
 	Name: "Testing Channel",

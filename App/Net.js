@@ -1,5 +1,6 @@
 function NetApiCall(Data, Proc) {
-	// Data = {Target: "Friendica", Method: "...", Data: {}, Call: (), CallFine: (), CallFail: ()}
+	var Method = Data.Method.split(' ')[0];
+	var Endpoint = Data.Method.split(' ').slice(1).join(' ');
 	var Req = new XMLHttpRequest();
 	Req.Proc = Proc;
 	Req.onloadend = function(){
@@ -24,13 +25,14 @@ function NetApiCall(Data, Proc) {
 			};
 		};
 	};
-	if (Data.Target == 'Mastodon') {
-		Req.open('GET', `${MastodonUrl}/api/v1/${Data.Method}`, true);
-	} else
-	if (Data.Target == 'Friendica') {
-		Req.open('GET', `${FriendicaUrl}/api/${Data.Method}.json`, true);
-		Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
-	};
+	//if (Data.Target == 'Mastodon') {
+	//	Req.open(Method, `${MastodonUrl}/api/v1/${Endpoint}`, true);
+	//} else
+	//if (Data.Target == 'Friendica') {
+	//	Req.open(Method, `${FriendicaUrl}/api/${Endpoint}.json`, true);
+	//	Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
+	//};
+	Req.open(Method, `${Data.Target}/api/v1/${Endpoint}`, true);
 	Req.send();
 };
 

@@ -6,6 +6,15 @@ function RndId() {
 	return `${Date.now()}${Math.random() + Math.random()}`;
 };
 
+function UrlBase(Url) {
+	var Lower = Url.toLowerCase();
+	var Domain = UrlDomain(Url);
+	if (Lower.startsWith('http://')) return `http://${Domain}`;
+	else
+	if (Lower.startsWith('https://')) return `https://${Domain}`;
+	else
+	return `//${Domain}`;
+};
 function UrlDomain(Url) {
 	return Url.split('//')[1].split('/')[0];
 };
@@ -117,6 +126,9 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 			if (IsObj(KeyOld)) {
 			// Object in SchemaNew / Deep nested children in TreeOld
 				Object.keys(KeyOld).forEach(function(KeyObj){
+					//if (SchemaNew.__All__) {
+					//	TreeNew.__All__ = SchemaNew.__All__;
+					//};
 					if (KeyObj === '__Eval__') {
 						eval(KeyOld[KeyObj]);
 					} else
