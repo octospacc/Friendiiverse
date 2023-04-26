@@ -60,7 +60,7 @@ var ApiSchema = {
 		},
 		Icon: {
 			Mastodon: "avatar",
-			Misskey: "avatarUrl",
+			Misskey: {__OldOr__: ["avatarUrl", "iconUrl"]},
 		},
 		Name: {
 			Mastodon: {__OldOr__: ["display_name", "title"]},
@@ -82,14 +82,18 @@ var ApiSchema = {
 var ApiEndpoints = {
 	FetchNotes: {
 		Mastodon(Profile) {
-			return `GET accounts/${Profile.Id}/statuses`;
+			return `GET api/v1/accounts/${Profile.Id}/statuses`;
 		},
 	},
 	ServerInfo: {
-		Mastodon: "GET instance",
+		Mastodon: "GET api/v1/instance",
+		Misskey: {
+			Method: "POST api/meta",
+			Data: {"detail": true},
+		},
 	},
 	ServerTimeline: {
-		Mastodon: "GET timelines/public",
+		Mastodon: "GET api/v1/timelines/public",
 	},
 };
 

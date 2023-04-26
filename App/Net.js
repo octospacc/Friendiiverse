@@ -1,4 +1,4 @@
-function NetApiCall(Data, Proc) {
+function NetCall(Data, Proc) {
 	var Method = Data.Method.split(' ')[0];
 	var Endpoint = Data.Method.split(' ').slice(1).join(' ');
 	var Req = new XMLHttpRequest();
@@ -6,6 +6,7 @@ function NetApiCall(Data, Proc) {
 	Req.onloadend = function(){
 		try {
 			this.responseJson = JSON.parse(this.responseText);
+			this.response = this.responseJson;
 			this.responseLog = this.responseJson;
 		} catch(Ex) {
 			this.responseLog = this.responseText;
@@ -25,15 +26,15 @@ function NetApiCall(Data, Proc) {
 			};
 		};
 	};
-	//if (Data.Target == 'Mastodon') {
-	//	Req.open(Method, `${MastodonUrl}/api/v1/${Endpoint}`, true);
-	//} else
 	//if (Data.Target == 'Friendica') {
 	//	Req.open(Method, `${FriendicaUrl}/api/${Endpoint}.json`, true);
 	//	Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
 	//};
-	Req.open(Method, `${Data.Target}/api/v1/${Endpoint}`, true);
-	Req.send();
+	Req.open(Method, `${Data.Target}/${Endpoint}`, true);
+	_.forOwn(_.merge({"Content-Type": "application/json"}, Data.Headers), function(Val, Key) {
+		Req.setRequestHeader(Key, Val);
+	});
+	Req.send(JSON.stringify(Data.Data));
 };
 
 function IsHttpCodeGood(Code) {

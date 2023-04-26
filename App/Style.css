@@ -63,10 +63,19 @@ img, video {
 	margin: 12px;
 }
 
-.View.Note .Profile.Icon {
+.Profile.Banner {
+	width: 384px;
+}
+
+/*.View.Note*/ .Profile.Icon {
 	width: 64px;
 }
 
-.Gallery > div {
+.Window.Gallery > ul {
+	padding: 0;
+}
+
+.Window.Gallery > ul > li {
 	display: inline-block;
+	width: 384px;
 }

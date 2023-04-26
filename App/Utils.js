@@ -22,6 +22,19 @@ function UrlDomain(Url) {
 	return Url.split('//')[1].split('/')[0];
 };
 
+function FuncName(Fun) {
+	Fun = Fun.toString();
+	var Name = Fun.split(' ')[1].split('(')[0].split('{')[0];
+	var Hash = Fun.hashCode();
+	return `f:${Name} (${Fun.hashCode()})`;
+};
+
+function CallFun(f, a, b, c, d) {
+	if (typeof(f) === 'function') {
+		f(a, b, c, d);
+	};
+};
+
 function LogDebug(Data, Status) {
 	if (Debug) {
 		if (!Status) {
@@ -32,8 +45,7 @@ function LogDebug(Data, Status) {
 				Data[i] = JSON.parse(Data[i]);
 			} catch(_){};
 		};
-		console[{l: "log", e: "error"}[Status.toLowerCase()]](LogDebug.caller.toString().hashCode()
-		/*Issue trying to get function name on Eruda... .split(' ')[1].split('(')[0]*/, Data);
+		console[{l: "log", e: "error"}[Status.toLowerCase()]](FuncName(LogDebug.caller), Data);
 	};
 };
 

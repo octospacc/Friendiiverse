@@ -88,6 +88,21 @@ function HtmlAssignPropper(El, Data) {
 	});
 };
 
+function TransNetCall(Data, FromSource, DestType, Proc) {
+	Data.CallOld = Data.Call;
+	Data.CallFineOld = Data.CallFine;
+	Data.CallFailOld = Data.CallFail;
+	NetCall(_.merge(Data, {
+		//Call: function(Res){ CallFun(Data.Call, Res); },
+		CallFine: function(Res){
+			Res.responseJsonOld = Res.responseJson;
+			Res.responseJson = ApiTransform(Res.responseJson, FromSource, DestType);
+			Res.response = Res.responseJson;
+			CallFun(Data.CallFineOld, Res);
+		}, //CallFail: function(Res){ CallFun(Data.CallFail, Res); },
+	}), Proc);
+};
+
 function DisplayProfile(Profile) {
 	Profile = UrlObj(Profile);
 	var Window = MkWindow({className: "Profile"});
@@ -124,7 +139,7 @@ function DisplayMastodonTimeline(Data) {
 
 function FetchNotes(Profile, Proc) {
 	var Soft = Profile.__Software__;
-	NetApiCall({Target: UrlBase(Profile.Url), Method: ApiEndpoints.FetchNotes['Mastodon'](Profile), CallFine: function(Res){
+	NetCall({Target: UrlBase(Profile.Url), Method: ApiEndpoints.FetchNotes['Mastodon'](Profile), CallFine: function(Res){
 		var Notes = ApiTransform(Res.responseJson, Soft, 'Note');
 		LogDebug(Notes, 'l');
 		Tasker[Res.Proc[0]].Return(Notes);
@@ -135,7 +150,7 @@ function FetchMastodon(Proc) {
 	//if (UseFakeApi) {
 	//	ResFetchMastodon({responseJson: [FakeApi.Mastodon.Status], Proc: Proc});
 	//} else {
-		NetApiCall({Target: "Mastodon", Method: "GET timelines/public", CallFine: ResFetchMastodon}, Proc);
+		NetCall({Target: "Mastodon", Method: "GET timelines/public", CallFine: ResFetchMastodon}, Proc);
 	//};
 };
 function ResFetchMastodon(Res) {
@@ -162,26 +177,25 @@ function FillHome() {
 	var Window = MkWindow({className: "Gallery"});
 	var Categories = ApiStatic.Featured;
 	Object.keys(Categories).forEach(function(Category){
-		Window.innerHTML += `<h2>Featured ${Category}</h2>`;
+		Window.innerHTML += `<h2>Featured ${Category}</h2><ul></ul>`;
 		Categories[Category].forEach(function(Profile){
 			ApiCache.Urls[Profile.Url] = Profile;
 			var Rnd = RndHtmlId();
-			Window.innerHTML += `<div id="${Rnd}">
+			Window.querySelector('ul').innerHTML += `<li id="${Rnd}">
 				<a href="${Profile.Url}" onclick="DisplayProfile('${Profile.Url}'); return false;">
+					<img class="Profile Banner" data-assign="src:Banner" src="${Profile.Banner}"/>
 					<div>
-						<img data-assign="src:Banner" src="${Profile.Banner}"/>
-					</div>
-					<div>
-						<img data-assign="src:Icon" src="${Profile.Icon}"/>
+						<img class="Profile Icon" data-assign="src:Icon" src="${Profile.Icon}"/>
 						<span data-assign="innerHTML:Name">${Profile.Url}</span>
 					</div>
 				</a>
-			</div>`;
-			NetApiCall({Target: Profile.Url, Method: ApiEndpoints.ServerInfo[Profile.ServerSoftware], CallFine: function(Res){
-				var Data = ApiTransform(Res.responseJson, Profile.ServerSoftware, 'Profile');
-				HtmlAssign(Rnd, Data);
-				_.merge(ApiCache.Urls[Profile.Url], Data);
-			}});
+			</li>`;
+			var Endp = ApiEndpoints.ServerInfo[Profile.ServerSoftware];
+			var Method = Endp.Method || Endp;
+			TransNetCall({Target: Profile.Url, Method: Method, Data: Endp.Data, CallFine: function(Res){
+				HtmlAssign(Rnd, Res.responseJson);
+				_.merge(ApiCache.Urls[Profile.Url], Res.responseJson);
+			}}, Profile.ServerSoftware, 'Profile');
 		});
 	});
 };
