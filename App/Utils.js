@@ -32,12 +32,13 @@ function LogDebug(Data, Status) {
 				Data[i] = JSON.parse(Data[i]);
 			} catch(_){};
 		};
-		console[{l: "log", e: "error"}[Status.toLowerCase()]](LogDebug.caller, Data);
+		console[{l: "log", e: "error"}[Status.toLowerCase()]](LogDebug.caller.toString().hashCode()
+		/*Issue trying to get function name on Eruda... .split(' ')[1].split('(')[0]*/, Data);
 	};
 };
 
 function IsObj(Item) {
-	return typeof(Item) == 'object';
+	return typeof(Item) === 'object';
 };
 
 function CopyObj(Obj) {
@@ -50,6 +51,16 @@ function ExtrimObj(Obj) {
 		Obj[Key] = undefined;
 	});
 	return Obj;
+};
+
+function UrlObj(Val) {
+	if (IsObj(Val)) {
+		return Obj;
+	} else
+	if (typeof(Val) === 'string') {
+		// TODO: fetch from Internet if key missing in cache
+		return ApiCache.Urls[Val];
+	};
 };
 
 function B64Obj(Obj) {
@@ -109,12 +120,14 @@ function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 	LogDebug([TreesOld, SchemaNew, NodeNew, TypeOld]);
 	if (Array.isArray(TreesOld)) {
+	// List of values
 		var ListNew = [];
 		ForceList(TreesOld).forEach(function(TreeOld){
 			ListNew.push(JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld));
 		});
 		return ListNew;
 	} else {
+	// Object
 		if (TreesOld) {
 			return JsonTransformCycleB(TreesOld, SchemaNew, NodeNew, TypeOld);
 		};
@@ -137,6 +150,16 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 					} else
 					if (KeyObj === '__EvalSet__') {
 						TreeNew[KeyNew] = eval(KeyOld[KeyObj]);
+					} else
+					if (KeyObj === '__OldOr__') {
+						var Keys = KeyOld[KeyObj];
+						for (var i=0; i<Keys.length; i++) {
+							var Key = TreeOld[Keys[i]];
+							if (Key !== undefined) {
+								TreeNew[KeyNew] = Key;
+								return;
+							};
+						};
 					};
 				});
 			} else {
@@ -151,4 +174,16 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 	});
 	TreeNew.__TreeOld__ = TreeOld;
 	return TreeNew;
+};
+
+// https://stackoverflow.com/a/7616484
+String.prototype.hashCode = function() {
+	var hash = 0, i, chr;
+	if (this.length === 0) return hash;
+	for (i = 0; i < this.length; i++) {
+		chr = this.charCodeAt(i);
+		hash = ((hash << 5) - hash) + chr;
+		hash |= 0; // Convert to 32bit integer
+	};
+	return Number(hash).toString(16).padStart(2, 0);
 };

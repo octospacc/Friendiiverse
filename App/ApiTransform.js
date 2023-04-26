@@ -51,11 +51,11 @@ var ApiSchema = {
 	Profile: {
 		Avatar: {}, // would "Character" be better?
 		Banner: {
-			Mastodon: "header",
+			Mastodon: {__OldOr__: ["header", "thumbnail"]},
 			Misskey: "bannerUrl",
 		},
 		Description: {
-			Mastodon: "note",
+			Mastodon: {__OldOr__: ["note", "description"]},
 			Misskey: "description",
 		},
 		Icon: {
@@ -63,10 +63,10 @@ var ApiSchema = {
 			Misskey: "avatarUrl",
 		},
 		Name: {
-			Mastodon: "display_name",
+			Mastodon: {__OldOr__: ["display_name", "title"]},
 			Misskey: "name",
 		},
-		Type: { // user, bot, channel, group
+		Type: { // user, bot, group, channel:[normal, server]
 			Mastodon: {__EvalSet__: `
 				if (TreeOld.bot) 'Bot';
 				else
@@ -85,11 +85,18 @@ var ApiEndpoints = {
 			return `GET accounts/${Profile.Id}/statuses`;
 		},
 	},
+	ServerInfo: {
+		Mastodon: "GET instance",
+	},
+	ServerTimeline: {
+		Mastodon: "GET timelines/public",
+	},
 };
 
 function ApiTransform(Data, FromSource, DestType) {
-	LogDebug([Data, DestType, FromSource]);
-	return JsonTransformB(Data, ApiSchema, ApiSchema[DestType], FromSource);
+	var DataFinal = JsonTransformB(Data, ApiSchema, ApiSchema[DestType], FromSource);
+	LogDebug([Data, DestType, FromSource, DataFinal]);
+	return DataFinal;
 };
 
 /*

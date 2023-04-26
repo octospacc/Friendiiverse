@@ -66,16 +66,30 @@ function DoAsync(First, Then, Data) {
 };
 
 function HtmlAssign(Id, Data) {
-	Array.from(document.getElementsByClassName(`${Id}`)).forEach(function(El){
-		var Toks = El.dataset.assign.split(' ');
-		var Prop = Toks.slice(1).join(' ');
-		if (Data[Prop] !== undefined) {
-			El[Toks[0]] = Data[Prop];
+	Array.from(document.getElementsByClassName(Id)).forEach(function(El){
+		HtmlAssignPropper(El, Data);
+	});
+	Array.from(document.getElementById(Id).querySelectorAll(`*:not([class~="${Id}"])`)).forEach(function(El){
+		if (El.dataset.assign) {
+			HtmlAssignPropper(El, Data);
+		};
+	});
+};
+function HtmlAssignPropper(El, Data) {
+	El.dataset.assign.trim().split(' ').forEach(function(Att){
+		var Toks = Att.split(':');
+		var Prop = Data;
+		Toks[1].split('.').forEach(function(Key){
+			Prop = Prop[Key];
+		});
+		if (Prop !== undefined) {
+			El[Toks[0]] = Prop;
 		};
 	});
 };
 
 function DisplayProfile(Profile) {
+	Profile = UrlObj(Profile);
 	var Window = MkWindow({className: "Profile"});
 	Window.innerHTML += `<div class="" style="display: inline-block;">
 		<a href="${Profile.Url}">
@@ -88,6 +102,7 @@ function DisplayProfile(Profile) {
 			</div>
 		</a>
 	</div>`;
+	// TODO: Handle fetching notes of non-standard profiles like servers timelines
 	DoAsync(FetchNotes, FillTimeline, Profile);
 };
 
@@ -151,19 +166,21 @@ function FillHome() {
 		Categories[Category].forEach(function(Profile){
 			ApiCache.Urls[Profile.Url] = Profile;
 			var Rnd = RndHtmlId();
-			Window.innerHTML += `<div>
-				<a href="${Profile.Url}" onclick="${Profile.__Display__}('${Profile.Url}'); return false;">
+			Window.innerHTML += `<div id="${Rnd}">
+				<a href="${Profile.Url}" onclick="DisplayProfile('${Profile.Url}'); return false;">
 					<div>
-						<img class="${Rnd}" data-assign="src thumbnail" src="${Profile.Banner}"/>
+						<img data-assign="src:Banner" src="${Profile.Banner}"/>
 					</div>
 					<div>
-						<img class="${Rnd}" data-assign="src Icon" src="${Profile.Icon}"/>
-						<span class="${Rnd}" data-assign="innerHTML title">${Profile.Url}</span>
+						<img data-assign="src:Icon" src="${Profile.Icon}"/>
+						<span data-assign="innerHTML:Name">${Profile.Url}</span>
 					</div>
 				</a>
 			</div>`;
-			NetApiCall({Target: Profile.Url, Method: "GET instance", CallFine: function(Res){
-				HtmlAssign(Rnd, Res.responseJson);
+			NetApiCall({Target: Profile.Url, Method: ApiEndpoints.ServerInfo[Profile.ServerSoftware], CallFine: function(Res){
+				var Data = ApiTransform(Res.responseJson, Profile.ServerSoftware, 'Profile');
+				HtmlAssign(Rnd, Data);
+				_.merge(ApiCache.Urls[Profile.Url], Data);
 			}});
 		});
 	});

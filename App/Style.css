@@ -1,5 +1,6 @@
 :root {
 	--BarHeight: 3em;
+	--WindowMargin: 1em;
 }
 
 * {
@@ -53,7 +54,8 @@ img, video {
 
 	height: 100vh;
 	overflow-y: auto;
-	padding-bottom: var(--BarHeight);
+	padding: var(--WindowMargin);
+	padding-bottom: calc(var(--WindowMargin) + (var(--BarHeight) * 2));
 }
 
 .View.Note {

@@ -43,6 +43,14 @@ Base = BaseNew
 FragReplace('<link rel="stylesheet" href="{File}"/>', '<style data-source="{File}">{Frag}</style>',   '*.css')
 FragReplace('<script src="{File}"></script>',         '<script data-source="{File}">{Frag}</script>', '*.js')
 
+ScriptFrags = ''
+for File in Path('./Polyfill').rglob('*.js'):
+	File = str(File)
+	#Folder = '/'.join(File.split('/')[:-1])
+	#File = File.split('/')[-1]
+	ScriptFrags += f'<script>{open(File, "r").read()}</script>'
+Base = Base.replace('<script folder="./Polyfill"></script>', ScriptFrags)
+
 os.chdir('..')
 
 with open('./Dist/Friendiiverse.html', 'w') as Build:
