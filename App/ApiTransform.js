@@ -22,11 +22,12 @@ var TransSchemas = {
 */
 
 var ApiSchema = {
-	//__All__: {
-	//	__Software__: {
-	//		__EvalSet__: "TypeOld",
-	//	},
-	//},
+	__All__: {
+		ServerSoftware: { //TODO: Handle this in JsonTransform
+			Mastodon: {__Set__: "Mastodon"},
+			Misskey: {__Set__: "Misskey"},
+		},
+	},
 	Note: {
 		Content: {
 			Mastodon: "content",

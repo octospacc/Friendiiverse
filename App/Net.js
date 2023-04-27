@@ -6,10 +6,10 @@ function NetCall(Data, Proc) {
 	Req.onloadend = function(){
 		try {
 			this.responseJson = JSON.parse(this.responseText);
-			this.response = this.responseJson;
 			this.responseLog = this.responseJson;
 		} catch(Ex) {
 			this.responseLog = this.responseText;
+			LogDebug(Ex, 'e');
 		};
 		if (Data.Call) {
 			Data.Call(this);

@@ -97,49 +97,37 @@ function TransNetCall(Data, FromSource, DestType, Proc) {
 		CallFine: function(Res){
 			Res.responseJsonOld = Res.responseJson;
 			Res.responseJson = ApiTransform(Res.responseJson, FromSource, DestType);
-			Res.response = Res.responseJson;
 			CallFun(Data.CallFineOld, Res);
 		}, //CallFail: function(Res){ CallFun(Data.CallFail, Res); },
 	}), Proc);
 };
 
 function DisplayProfile(Profile) {
-	Profile = UrlObj(Profile);
-	var Window = MkWindow({className: "Profile"});
-	Window.innerHTML += `<div class="" style="display: inline-block;">
-		<a href="${Profile.Url}">
-			<div>
-				<img class="" src="${Profile.Banner}"/>
-			</div>
-			<div>
-				<img class="" src="${Profile.Icon}"/>
-				${Profile.Name}
-			</div>
-		</a>
-	</div>`;
-	// TODO: Handle fetching notes of non-standard profiles like servers timelines
-	DoAsync(FetchNotes, FillTimeline, Profile);
-};
-
-function DisplayMastodonTimeline(Data) {
-	var Window = MkWindow();
-	Window.innerHTML += `<div class="" style="display: inline-block;">
-		<a href="${Profile.Url}">
-			<div>
-				<img class="" src="${Profile.Banner}"/>
-			</div>
-			<div>
-				<img class="" src="${Profile.Icon}"/>
-				${Profile.Name}
-			</div>
-		</a>
-	</div>`;
-	DoAsync(FetchNotes, FillTimeline, Profile);
+	Profile = UrlObj(Profile, DisplayProfile);
+	//if (Profile) {
+		var Window = MkWindow({className: "Profile"});
+		Window.innerHTML += `<div class="Profile" style="display: inline-block;">
+			<a href="${Profile.Url}">
+				<div>
+					<img class="" src="${Profile.Banner}"/>
+				</div>
+				<div>
+					<img class="" src="${Profile.Icon}"/>
+					${Profile.Name}
+				</div>
+			</a>
+		</div>`;
+		// TODO: Handle fetching notes of non-standard profiles like servers timelines
+		DoAsync(FetchNotes, FillTimeline, Profile);
+	//};
 };
 
 function FetchNotes(Profile, Proc) {
-	var Soft = Profile.__Software__;
-	NetCall({Target: UrlBase(Profile.Url), Method: ApiEndpoints.FetchNotes['Mastodon'](Profile), CallFine: function(Res){
+	var Soft = Profile.ServerSoftware;
+	var Method = Profile.Type == 'Server'
+		? ApiEndpoints.ServerTimeline[Soft]
+		: ApiEndpoints.FetchNotes[Soft](Profile);
+	NetCall({Target: UrlBase(Profile.Url), Method: Method, CallFine: function(Res){
 		var Notes = ApiTransform(Res.responseJson, Soft, 'Note');
 		LogDebug(Notes, 'l');
 		Tasker[Res.Proc[0]].Return(Notes);
@@ -163,7 +151,7 @@ function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
 		ApiCache.__UrlStore__(Note.Profile);
 		Root.lastChild.innerHTML += `<div class="View Note">
-			<a href="${Note.Profile.Url}" onclick="DisplayProfile(ApiCache.Urls['${Note.Profile.Url}']); return false;">
+			<a href="${Note.Profile.Url}" onclick="DisplayProfile('${Note.Profile.Url}'); return false;">
 				<img class="Profile Icon" src="${Note.Profile.Icon}"/>
 				${Note.Profile.Name}
 			</a>
@@ -173,9 +161,14 @@ function FillTimeline(Notes) {
 	});
 };
 
+function DisplayThread() {
+	
+};
+
 function FillHome() {
 	var Window = MkWindow({className: "Gallery"});
 	var Categories = ApiStatic.Featured;
+	//_.forOwn(Categories, function(CategoryVal, Category){
 	Object.keys(Categories).forEach(function(Category){
 		Window.innerHTML += `<h2>Featured ${Category}</h2><ul></ul>`;
 		Categories[Category].forEach(function(Profile){
@@ -207,10 +200,6 @@ PlazasView.innerHTML = `
 	<ul>
 		<li onclick="DisplayFriendicaTimeline('statuses/networkpublic_timeline');">Federation</li>
 		<li onclick="DisplayFriendicaTimeline('statuses/public_timeline');">${FriendicaUrl}</li>
-		<li onclick="DoAsync(FetchMastodon, FillTimeline);">
-			<img src=""/>
-			${MastodonUrl}
-		</li>
 	</ul>
 </div>
 `;

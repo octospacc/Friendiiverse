@@ -6,7 +6,7 @@ stages:
 
 before_script: |
   apk update
-  apk add python3
+  apk add python3 nodejs npm
 
 sast:
   stage: test
@@ -16,7 +16,8 @@ include:
 pages:
   stage: deploy
   script: |
-    python3 ./Build.py
+    npm install . --save-dev
+    sh ./Build.sh
     mv ./Dist ./public
     cp ./public/Friendiiverse.html ./public/index.html
   artifacts:

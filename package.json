@@ -1,0 +1,12 @@
+{
+	"name": "Friendiiverse",
+	"version": "Pre-Alpha Development",
+	"scripts": {
+		"build": "sh ./Build.sh"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.21.0",
+		"@babel/core": "^7.21.4",
+		"@babel/preset-env": "^7.21.4"
+	}
+}
