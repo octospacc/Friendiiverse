@@ -127,7 +127,9 @@ function FetchNotes(Profile, Proc) {
 	var Method = Profile.Type == 'Server'
 		? ApiEndpoints.ServerTimeline[Soft]
 		: ApiEndpoints.FetchNotes[Soft](Profile);
-	NetCall({Target: UrlBase(Profile.Url), Method: Method, CallFine: function(Res){
+	var Endp = Method;
+	var Method = Endp.Method || Endp;
+	NetCall({Target: UrlBase(Profile.Url), Method: Method, Data: Endp.Data, CallFine: function(Res){
 		var Notes = ApiTransform(Res.responseJson, Soft, 'Note');
 		LogDebug(Notes, 'l');
 		Tasker[Res.Proc[0]].Return(Notes);
@@ -150,6 +152,9 @@ function ResFetchMastodon(Res) {
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
 		ApiCache.__UrlStore__(Note.Profile);
+		if (Note.Quoting) {
+			Note = Note.Quoting;
+		};
 		Root.lastChild.innerHTML += `<div class="View Note">
 			<a href="${Note.Profile.Url}" onclick="DisplayProfile('${Note.Profile.Url}'); return false;">
 				<img class="Profile Icon" src="${Note.Profile.Icon}"/>

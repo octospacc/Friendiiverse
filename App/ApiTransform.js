@@ -24,8 +24,9 @@ var TransSchemas = {
 var ApiSchema = {
 	__All__: {
 		ServerSoftware: { //TODO: Handle this in JsonTransform
-			Mastodon: {__Set__: "Mastodon"},
-			Misskey: {__Set__: "Misskey"},
+			//Mastodon: {__Set__: "Mastodon"},
+			//Misskey: {__Set__: "Misskey"},
+			__All__: {__EvalSet__: "TypeOld"},
 		},
 	},
 	Note: {
@@ -34,10 +35,12 @@ var ApiSchema = {
 			Misskey: "text",
 		},
 		Profile: {
+			__: "Profile",
 			Mastodon: "account",
 			Misskey: "user",
 		},
 		Quoting: {
+			__: "Note",
 			Mastodon: "reblog",
 			Misskey: "renote",
 		},
@@ -73,9 +76,13 @@ var ApiSchema = {
 				else
 				if (TreeOld.group) 'Group';
 			`},
+			Misskey: {__EvalSet__: `
+				if (TreeOld.isBot) 'Bot';
+			`},
 		},
 		Url: {
 			Mastodon: "url",
+			Misskey: "uri",
 		},
 	},
 };
@@ -84,6 +91,9 @@ var ApiEndpoints = {
 	FetchNotes: {
 		Mastodon(Profile) {
 			return `GET api/v1/accounts/${Profile.Id}/statuses`;
+		},
+		Misskey(Profile) {
+			return ``;
 		},
 	},
 	ServerInfo: {
@@ -95,6 +105,7 @@ var ApiEndpoints = {
 	},
 	ServerTimeline: {
 		Mastodon: "GET api/v1/timelines/public",
+		Misskey: "POST api/notes/local-timeline",
 	},
 };
 

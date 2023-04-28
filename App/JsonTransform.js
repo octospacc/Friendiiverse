@@ -57,7 +57,7 @@ function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 		return ListNew;
 	} else {
 	// Object
-		if (TreesOld) {
+		if (TreesOld && SchemaNew && NodeNew) {
 			return JsonTransformCycleB(TreesOld, SchemaNew, NodeNew, TypeOld);
 		};
 	};
@@ -66,19 +66,31 @@ function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 	var TreeNew = CopyObj(NodeNew);
 	if (SchemaNew.__All__) {
-		TreeNew.__All__ = CopyObj(SchemaNew.__All__);
+		//TreeNew.__All__ = CopyObj(SchemaNew.__All__);
+		//console.log(1, '__All__')
+		//_.forOwn(TreeNew, function(KeyNewVal, KeyNew){
+		//	console.log(1, KeyNew)
+		//});
+		_.forOwn(SchemaNew.__All__, function(Val, Key){
+			//console.log(1, Key)
+			TreeNew[Key] = CopyObj(Val);
+		});
 	};
 	_.forOwn(TreeNew, function(KeyNewVal, KeyNew){
+		//if (KeyNew === '__All__') {
+		//	console.log(1, KeyNew)
+		//	_.forOwn(KeyOld, function(KeyObjVal, KeyObj){});
+		//};
+		if (KeyNewVal.__All__ && !KeyNewVal[TypeOld]) {
+			//console.log(3, KeyNewVal.__All__)
+			KeyNewVal[TypeOld] = KeyNewVal.__All__;
+		};
 		if (KeyNewVal[TypeOld]) {
 			var KeyOld = KeyNewVal[TypeOld];
 			var ObjOld = TreeOld[KeyOld];
 			if (IsObj(KeyOld)) {
 			// Object in NodeNew / Deep nested children in TreeOld
 				_.forOwn(KeyOld, function(KeyObjVal, KeyObj){
-					//if (KeyObj === '__All__') { //NOTE: This must be handle as directly nested, not deep (how?)
-					//	console.log('__All__')
-					//	//TreeNew.__All__ = SchemaNew.__All__;
-					//};
 					if (KeyObj === '__Eval__') {
 						eval(KeyObjVal);
 					} else
@@ -102,7 +114,7 @@ function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
 			} else {
 			// Value in NodeNew / Direct children in TreeOld
 				if (IsObj(ObjOld)) {
-					TreeNew[KeyNew] = JsonTransformB(ObjOld, SchemaNew, SchemaNew[KeyNew], TypeOld);
+					TreeNew[KeyNew] = JsonTransformB(ObjOld, SchemaNew, SchemaNew[TreeNew[KeyNew].__], TypeOld);
 				} else {
 					TreeNew[KeyNew] = ObjOld;
 				};

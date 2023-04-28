@@ -4,18 +4,6 @@ from base64 import b64encode
 from mimetypes import guess_type
 from pathlib import Path
 
-#def MinifyJs(Js):
-#	New = ''
-#	Js = Js.replace('\\\n', '\n')
-#	BlockOpen = False
-#	for Line in Js.splitlines():
-#		if '/*' in Line: BlockOpen = True
-#		if '*/' in Line: BlockOpen = False
-#		if '//' in Line and not BlockOpen:
-#			Line = Line.replace('//', '/*') + '*/'
-#		New += Line
-#	return New.replace('\n', ' ')
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 os.makedirs('./Dist', exist_ok=True)
 

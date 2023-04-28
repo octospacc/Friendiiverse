@@ -34,6 +34,9 @@ function NetCall(Data, Proc) {
 	_.forOwn(_.merge({"Content-Type": "application/json"}, Data.Headers), function(Val, Key) {
 		Req.setRequestHeader(Key, Val);
 	});
+	if (Method === 'POST' && !Data.Data) {
+		Data.Data = {};
+	};
 	Req.send(JSON.stringify(Data.Data));
 };
 
