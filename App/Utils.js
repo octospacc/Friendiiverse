@@ -12,14 +12,19 @@ function RndHtmlId(Tag) {
 function UrlBase(Url) {
 	var Lower = Url.toLowerCase();
 	var Domain = UrlDomain(Url);
-	if (Lower.startsWith('http://')) return `http://${Domain}`;
-	else
-	if (Lower.startsWith('https://')) return `https://${Domain}`;
-	else
-	return `//${Domain}`;
+	if (Lower.startsWith('https://')) {
+		return `https://${Domain}`;
+	} else {
+		return `http://${Domain}`;
+	};
 };
 function UrlDomain(Url) {
-	return Url.split('//')[1].split('/')[0];
+	if (_.some(['//', 'http://', 'https://'], function(Sub){ return Url.toLowerCase().startsWith(Sub); })) {
+		return Url.split('//')[1].split('/')[0];
+	} else {
+		return Url.split('/')[0];
+	};
+	
 };
 
 function FuncName(Fun) {
@@ -59,12 +64,8 @@ function IsObj(Item) {
 	return typeof(Item) === 'object';
 };
 
-function CopyObj(Obj) {
-	return JSON.parse(JSON.stringify(Obj));
-};
-
 function ExtrimObj(Obj) {
-	Obj = CopyObj(Obj);
+	Obj = structuredClone(Obj);
 	Object.keys(Obj).forEach(function(Key){
 		Obj[Key] = undefined;
 	});

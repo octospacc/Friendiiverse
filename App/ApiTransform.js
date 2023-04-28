@@ -49,7 +49,7 @@ var ApiSchema = {
 			Misskey: "createdAt",
 		},
 		Url: {
-			Mastodon: "url",
+			__All__: {__OldOr__: ["url", "uri"]},
 		},
 	},
 	Profile: {
@@ -81,8 +81,8 @@ var ApiSchema = {
 			`},
 		},
 		Url: {
+			__All__: {__OldOr__: ["url", "uri"]},
 			Mastodon: "url",
-			Misskey: "uri",
 		},
 	},
 };
@@ -93,7 +93,10 @@ var ApiEndpoints = {
 			return `GET api/v1/accounts/${Profile.Id}/statuses`;
 		},
 		Misskey(Profile) {
-			return ``;
+			return {
+				Method: "POST api/users/show",
+				Data: {"username": Profile.Id},
+			};
 		},
 	},
 	ServerInfo: {

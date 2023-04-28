@@ -1,5 +1,5 @@
 var Persist = {Servers: {}, Sources: {}, Identities: {},};
-var Present = CopyObj(Persist);
+var Present = structuredClone(Persist);
 var Tasker = {};
 var ApiCache = {
 	__Store__(Data, Key, Where) {
@@ -152,21 +152,11 @@ function ResFetchMastodon(Res) {
 function FillTimeline(Notes) {
 	Notes.forEach(function(Note){
 		ApiCache.__UrlStore__(Note.Profile);
-		if (Note.Quoting) {
-			Note = Note.Quoting;
-		};
-		Root.lastChild.innerHTML += `<div class="View Note">
-			<a href="${Note.Profile.Url}" onclick="DisplayProfile('${Note.Profile.Url}'); return false;">
-				<img class="Profile Icon" src="${Note.Profile.Icon}"/>
-				${Note.Profile.Name}
-			</a>
-			${SanitizeHtml(Note.Content)}
-			<a href="${Note.Url}">${Note.Time}</a>
-		</div>`;
+		Root.lastChild.innerHTML += Templating.ViewNote(Note);
 	});
 };
 
-function DisplayThread() {
+function DisplayThread(Note) {
 	
 };
 

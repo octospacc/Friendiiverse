@@ -64,16 +64,16 @@ function JsonTransformB(TreesOld, SchemaNew, NodeNew, TypeOld) {
 };
 
 function JsonTransformCycleB(TreeOld, SchemaNew, NodeNew, TypeOld) {
-	var TreeNew = CopyObj(NodeNew);
+	var TreeNew = structuredClone(NodeNew);
 	if (SchemaNew.__All__) {
-		//TreeNew.__All__ = CopyObj(SchemaNew.__All__);
+		//TreeNew.__All__ = structuredClone(SchemaNew.__All__);
 		//console.log(1, '__All__')
 		//_.forOwn(TreeNew, function(KeyNewVal, KeyNew){
 		//	console.log(1, KeyNew)
 		//});
 		_.forOwn(SchemaNew.__All__, function(Val, Key){
 			//console.log(1, Key)
-			TreeNew[Key] = CopyObj(Val);
+			TreeNew[Key] = structuredClone(Val);
 		});
 	};
 	_.forOwn(TreeNew, function(KeyNewVal, KeyNew){
