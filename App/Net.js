@@ -53,7 +53,7 @@ function IsHttpCodeGood(Code) {
 };
 
 function MkUrl(Url) {
-	if (!Url.toLowerCase().startsWith(HttpProxy)) {
+	if (Url && !Url.toLowerCase().startsWith(HttpProxy)) {
 		Url = HttpProxy + Url;
 	};
 	return Url;

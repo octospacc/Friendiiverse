@@ -12,5 +12,8 @@
 				}
 			}
 		]
+	],
+	"ignore": [
+		"./App/Polyfill/1.core-js-bundle.js"
 	]
 }

@@ -9,6 +9,7 @@
 		"@babel/cli": "^7.21.0",
 		"@babel/core": "^7.21.4",
 		"@babel/preset-env": "^7.21.4",
+		"http-proxy": "^1.18.1",
 		"cors-anywhere": "^0.4.4"
 	}
 }

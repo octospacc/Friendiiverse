@@ -117,17 +117,7 @@ function DisplayProfile(Profile) {
 	Profile = UrlObj(Profile, DisplayProfile);
 	//if (Profile) {
 		var Window = MkWindow({className: "Profile"});
-		Window.innerHTML += `<div class="Profile" style="display: inline-block;">
-			<a href="${Profile.Url}">
-				<div>
-					<img class="" src="${Profile.Banner}"/>
-				</div>
-				<div>
-					<img class="" src="${Profile.Icon}"/>
-					${Profile.Name}
-				</div>
-			</a>
-		</div>`;
+		Window.innerHTML += Templating.ViewProfile(Profile);
 		// TODO: Handle fetching notes of non-standard profiles like servers timelines
 		DoAsync(FetchNotes, FillTimeline, Profile);
 	//};
@@ -182,9 +172,9 @@ function FillHome() {
 			var Rnd = RndHtmlId();
 			Window.querySelector('ul').innerHTML += `<li id="${Rnd}">
 				<a href="${Profile.Url}" onclick="DisplayProfile('${Profile.Url}'); return false;">
-					<img class="Profile Banner" data-assign="src=Banner" src="${Profile.Banner}"/>
+					<img class="Profile Banner" data-assign="src=Banner" src="${MkUrl(Profile.Banner)}"/>
 					<div>
-						<img class="Profile Icon" data-assign="src=Icon" src="${Profile.Icon}"/>
+						<img class="Profile Icon" data-assign="src=Icon" src="${MkUrl(Profile.Icon)}"/>
 						<span data-assign="innerHTML=Name">${Profile.Url}</span>
 					</div>
 				</a>
