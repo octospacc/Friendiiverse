@@ -9,24 +9,6 @@ function RndHtmlId(Tag) {
 	return `Rnd-${Tag}-${RndId().replace('.', '-')}`;
 };
 
-function UrlBase(Url) {
-	var Lower = Url.toLowerCase();
-	var Domain = UrlDomain(Url);
-	if (Lower.startsWith('https://')) {
-		return `https://${Domain}`;
-	} else {
-		return `http://${Domain}`;
-	};
-};
-function UrlDomain(Url) {
-	if (_.some(['//', 'http://', 'https://'], function(Sub){ return Url.toLowerCase().startsWith(Sub); })) {
-		return Url.split('//')[1].split('/')[0];
-	} else {
-		return Url.split('/')[0];
-	};
-	
-};
-
 function FuncName(Fun) {
 	if (Fun) {
 		Fun = Fun.toString();

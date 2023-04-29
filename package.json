@@ -2,11 +2,13 @@
 	"name": "Friendiiverse",
 	"version": "Pre-Alpha Development",
 	"scripts": {
-		"build": "sh ./Build.sh"
+		"build": "sh ./Build.sh",
+		"http-proxy": "node ./HttpProxy.js"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.21.0",
 		"@babel/core": "^7.21.4",
-		"@babel/preset-env": "^7.21.4"
+		"@babel/preset-env": "^7.21.4",
+		"cors-anywhere": "^0.4.4"
 	}
 }

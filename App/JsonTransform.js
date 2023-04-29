@@ -1,5 +1,5 @@
 // Transform JSON tree into a new using a template schema
-// DEVNOTE: Unsafe, should check for colliding "__" keys from input tree and act accordingly
+
 function JsonTransformA(TreesOld, SchemaCurr, SchemaRoot) {
 	if (Array.isArray(TreesOld)) {
 		var ListNew = [];
@@ -12,6 +12,7 @@ function JsonTransformA(TreesOld, SchemaCurr, SchemaRoot) {
 	};
 };
 
+// DEVNOTE: Unsafe, should check for colliding "__" keys from input tree and act accordingly
 function JsonTransformCycleA(TreeOld, SchemaCurr, SchemaRoot) {
 	var TreeNew = {};
 	Object.keys(TreeOld).forEach(function(KeyOld){

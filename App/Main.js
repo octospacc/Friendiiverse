@@ -1,18 +1,28 @@
+var Tasker = {};
 var Persist = {Servers: {}, Sources: {}, Identities: {},};
 var Present = structuredClone(Persist);
-var Tasker = {};
+
+Persist.__Set__ = function __Set__() {
+	// set value to own object
+	// set value to Present object too
+	// rewrite own object into cookies
+};
+
+Present.__Set__ = function __Set__() {
+	// like Persist but only set value to own object
+};
+
 var ApiCache = {
-	__Store__(Data, Key, Where) {
-		ApiCache[Where][Key] = Data;
-		ApiCache[Where][Key].__Time__ = Date.now();
+	__Store__(Data, Path/*Key, Where*/) {
+		eval(`ApiCache.${Path} = Data;`);
 	},
 	__UrlStore__(Data) {
-		ApiCache.__Store__(Data, Data.Url, 'Urls');
+		ApiCache.__Store__(Data, `Urls['${Data.Url}']`);
 	},
 	Urls: {},
 };
 
-Assets._ = function _(Name) {
+Assets.__ = function __(Name) {
 	if (Name in Assets) {
 		if (Assets[Name].startsWith('data:')) {
 			return Assets[Name];
@@ -22,7 +32,7 @@ Assets._ = function _(Name) {
 	};
 };
 
-Strings._ = function _(Name) {
+Strings.__ = function __(Name) {
 	// TODO: Handle arbitrary nestation
 	if (Name in Strings) {
 		if (Strings[Name]['en']) { // TODO{ Select this language from user config
@@ -77,13 +87,14 @@ function HtmlAssign(Id, Data) {
 };
 function HtmlAssignPropper(El, Data) {
 	El.dataset.assign.trim().split(' ').forEach(function(Att){
-		var Toks = Att.split(':');
-		var Prop = Data;
-		Toks[1].split('.').forEach(function(Key){
-			Prop = Prop[Key];
-		});
-		if (Prop !== undefined) {
-			El[Toks[0]] = Prop;
+		var Toks = Att.split('=');
+		var Key = Toks[0].trim();
+		var Val = eval(`Data.${Toks[1]}`);
+		if (Val !== undefined) {
+			if (Key === 'src') {
+				Val = MkUrl(Val);
+			};
+			El[Key] = Val;
 		};
 	});
 };
@@ -171,10 +182,10 @@ function FillHome() {
 			var Rnd = RndHtmlId();
 			Window.querySelector('ul').innerHTML += `<li id="${Rnd}">
 				<a href="${Profile.Url}" onclick="DisplayProfile('${Profile.Url}'); return false;">
-					<img class="Profile Banner" data-assign="src:Banner" src="${Profile.Banner}"/>
+					<img class="Profile Banner" data-assign="src=Banner" src="${Profile.Banner}"/>
 					<div>
-						<img class="Profile Icon" data-assign="src:Icon" src="${Profile.Icon}"/>
-						<span data-assign="innerHTML:Name">${Profile.Url}</span>
+						<img class="Profile Icon" data-assign="src=Icon" src="${Profile.Icon}"/>
+						<span data-assign="innerHTML=Name">${Profile.Url}</span>
 					</div>
 				</a>
 			</li>`;
