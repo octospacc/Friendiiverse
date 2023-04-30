@@ -42,8 +42,16 @@ function LogDebug(Data, Status) {
 	};
 };
 
-function IsObj(Item) {
-	return typeof(Item) === 'object';
+function TryStr(Val) {
+	if (typeof(Val) === 'string') {
+		return Val;
+	} else {
+		return false;
+	};
+};
+
+function IsObj(Val) {
+	return typeof(Val) === 'object';
 };
 
 function ExtrimObj(Obj) {
@@ -72,6 +80,14 @@ function B64Obj(Obj) {
 };
 function UnB64Obj(Obj) {
 	return JSON.parse(atob(Obj));
+};
+
+function JPath(Path) {
+	Path = Path.trim();
+	if (!(Path.startsWith('[') || Path.startsWith('.'))) {
+		Path = `.${Path}`;
+	};
+	return Path;
 };
 
 // https://stackoverflow.com/a/7616484

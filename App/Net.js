@@ -30,7 +30,7 @@ function NetCall(Data, Proc) {
 	//	Req.open(Method, `${FriendicaUrl}/api/${Endpoint}.json`, true);
 	//	Req.setRequestHeader('Authorization', `Basic ${btoa(FriendicaCredentials)}`);
 	//};
-	Req.open(Method, MkUrl(`${Data.Target}/${Endpoint}`), true);
+	Req.open(Method, MkReqUrl(`${Data.Target}/${Endpoint}`), true);
 	Req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 	_.forOwn(_.merge({"Content-Type": "application/json"}, Data.Headers), function(Val, Key) {
 		Req.setRequestHeader(Key, Val);
@@ -52,7 +52,7 @@ function IsHttpCodeGood(Code) {
 	};
 };
 
-function MkUrl(Url) {
+function MkReqUrl(Url) {
 	if (Url && !Url.toLowerCase().startsWith(HttpProxy)) {
 		Url = HttpProxy + Url;
 	};

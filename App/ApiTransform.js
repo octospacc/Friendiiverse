@@ -23,9 +23,11 @@ var TransSchemas = {
 
 var ApiSchema = {
 	__All__: {
-		ServerSoftware: { //TODO: Handle this in JsonTransform
-			//Mastodon: {__Set__: "Mastodon"},
-			//Misskey: {__Set__: "Misskey"},
+		//ServerId: {
+		//	__All__: "id",
+		//},
+		// NOTE: objects that embed cross-server data (e.g. a renote), might get this value assigned wrong for our needs (???)
+		ServerSoftware: {
 			__All__: {__EvalSet__: "TypeOld"},
 		},
 	},
@@ -70,6 +72,9 @@ var ApiSchema = {
 			Mastodon: {__OldOr__: ["display_name", "title"]},
 			Misskey: "name",
 		},
+		//ServerUsername: {
+		//	__All__: "username",
+		//},
 		Type: { // user, bot, group, channel:[normal, server]
 			Mastodon: {__EvalSet__: `
 				if (TreeOld.bot) 'Bot';
@@ -90,12 +95,13 @@ var ApiSchema = {
 var ApiEndpoints = {
 	FetchNotes: {
 		Mastodon(Profile) {
-			return `GET api/v1/accounts/${Profile.Id}/statuses`;
+			// Must actually get the id by calling GET api/v1/accounts/lookup?acct=USERNAME, the provided one is glitchy
+			return `GET api/v1/accounts/${Profile.__TreeOld__.id}/statuses`;
 		},
 		Misskey(Profile) {
 			return {
-				Method: "POST api/users/show",
-				Data: {"username": Profile.Id},
+				Method: "POST api/users/notes",
+				Data: {"userId": Profile.Id},
 			};
 		},
 	},
@@ -112,10 +118,34 @@ var ApiEndpoints = {
 	},
 };
 
+var WebEndpoints = {
+	Note: {
+		Misskey(Note) {
+			//return `SERVER_URL/notes/${Note.ServerId}`;
+			return `SERVER_URL/notes/${Note.__TreeOld__.id}`;
+		},
+	},
+	Profile: {
+		Misskey(Profile) {
+			var Host = Profile.__TreeOld__.host;
+			//return `SERVER_URL/@${Profile.ServerUsername}`;
+			return `SERVER_URL/@${Profile.__TreeOld__.username}`;
+		},
+	},
+};
+
 function ApiTransform(Data, FromSource, DestType) {
 	var DataFinal = JsonTransformB(Data, ApiSchema, ApiSchema[DestType], FromSource);
 	LogDebug([Data, DestType, FromSource, DataFinal]);
 	return DataFinal;
+};
+
+function GetWebUrl(Data, Type) {
+	return (TryStr(Data.Url)
+		? Data.Url
+		: WebEndpoints[Type][Data.ServerSoftware](Data)
+	);
+	//return Data.Url || WebEndpoints[Type][Data.ServerSoftware](Data);
 };
 
 /*

@@ -63,6 +63,10 @@ img, video {
 	margin: 12px;
 }
 
+.View.Profile {
+	display: inline-block;
+}
+
 .Profile.Banner {
 	width: 384px;
 }

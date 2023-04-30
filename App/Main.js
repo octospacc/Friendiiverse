@@ -13,8 +13,8 @@ Present.__Set__ = function __Set__() {
 };
 
 var ApiCache = {
-	__Store__(Data, Path/*Key, Where*/) {
-		eval(`ApiCache.${Path} = Data;`);
+	__Store__(Data, Path) {
+		eval(`ApiCache${JPath(Path)} = Data;`);
 	},
 	__UrlStore__(Data) {
 		ApiCache.__Store__(Data, `Urls['${Data.Url}']`);
@@ -92,7 +92,7 @@ function HtmlAssignPropper(El, Data) {
 		var Val = eval(`Data.${Toks[1]}`);
 		if (Val !== undefined) {
 			if (Key === 'src') {
-				Val = MkUrl(Val);
+				Val = MkReqUrl(Val);
 			};
 			El[Key] = Val;
 		};
@@ -115,12 +115,11 @@ function TransNetCall(Data, FromSource, DestType, Proc) {
 
 function DisplayProfile(Profile) {
 	Profile = UrlObj(Profile, DisplayProfile);
-	//if (Profile) {
+	if (Profile) {
 		var Window = MkWindow({className: "Profile"});
 		Window.innerHTML += Templating.ViewProfile(Profile);
-		// TODO: Handle fetching notes of non-standard profiles like servers timelines
 		DoAsync(FetchNotes, FillTimeline, Profile);
-	//};
+	};
 };
 
 function FetchNotes(Profile, Proc) {
@@ -158,7 +157,8 @@ function FillTimeline(Notes) {
 };
 
 function DisplayThread(Note) {
-	
+	var Window = MkWindow({className: "Thread"});
+	//Window.innerHTML += Templating.ViewNote(Note);
 };
 
 function FillHome() {
@@ -171,13 +171,7 @@ function FillHome() {
 			ApiCache.Urls[Profile.Url] = Profile;
 			var Rnd = RndHtmlId();
 			Window.querySelector('ul').innerHTML += `<li id="${Rnd}">
-				<a href="${Profile.Url}" onclick="DisplayProfile('${Profile.Url}'); return false;">
-					<img class="Profile Banner" data-assign="src=Banner" src="${MkUrl(Profile.Banner)}"/>
-					<div>
-						<img class="Profile Icon" data-assign="src=Icon" src="${MkUrl(Profile.Icon)}"/>
-						<span data-assign="innerHTML=Name">${Profile.Url}</span>
-					</div>
-				</a>
+				${Templating.ViewProfile(Profile, {Name: Profile.Url})}
 			</li>`;
 			var Endp = ApiEndpoints.ServerInfo[Profile.ServerSoftware];
 			var Method = Endp.Method || Endp;
